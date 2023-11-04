@@ -4,7 +4,7 @@ import { parseStringPromise } from "xml2js";
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
-  let searchTerm = url.searchParams.get("animes");
+  let searchTerm = url.searchParams.get("search");
   if (!searchTerm) {
     // If the searchTerm is empty, return an empty list
     return { animes: [], search: "" };
@@ -24,15 +24,24 @@ export function searchAnimesLoader({ request }) {
       } else {
         // Else, for each id in the returned list, fetch the corresponding data from the anidb api
         let animeList = [];
+        let promiseList = [];
         for (let id in animeData.ids) {
-          fetch("http://api.anidb.net:9001/httpapi?client=stinkinessclient&clientver=1&protover=1&request=anime&aid=" + id)
-            .then((aniData) => {
-            var parseString = require('xml2js').parseString;
-            parseString(aniData, function (err, jsonAnime) {
-                animeList.push(jsonAnime);
-            });
-          });
+          promiseList.push(
+            fetch(
+              "http://api.anidb.net:9001/httpapi?client=stinkinessclient&clientver=1&protover=1&request=anime&aid=" +
+                id
+            )
+          );
         }
+        Promise.all(promiseList).then((aniData) => {
+          var parseString = require("xml2js").parseString;
+          for (let anime in aniData) {
+            parseString(anime, function (err, jsonAnime) {
+              animeList.push(jsonAnime);
+              console.log(err);
+            });
+          }
+        });
         return { animes: animeList, search: searchTerm };
       }
     });
@@ -48,7 +57,7 @@ function Animes() {
           <input
             id="search"
             type="text"
-            name="animes"
+            name="search"
             placeholder="Search for animes"
             value={useEffect(() => {
               document.getElementById("search").value = loaded.search;
