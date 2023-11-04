@@ -1,6 +1,6 @@
 import { Form, Link, Outlet, useLoaderData } from "react-router-dom";
 import { useEffect } from "react";
-import { parseStringPromise } from 'xml2js';
+import { parseStringPromise } from "xml2js";
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
@@ -16,27 +16,24 @@ export function searchAnimesLoader({ request }) {
       // Convert text data into json -> data is the ids of ids corresponding
       return response.json();
     })
-    .then((data) => {
+    .then((animeData) => {
       // Fetch-ception to get the other infos on the animes that match the searchTerm
-      if (data.ids.length === 0) {
+      if (animeData.ids.length === 0) {
         // If the list of ids is empty, return an empty list
         return { animes: [], search: searchTerm };
       } else {
+        // Else, for each id in the returned list, fetch the corresponding data from the anidb api
         let animeList = [];
-        for (let id in data.ids) {
-          animeList.push((id) => {
-            return fetch(
-              "http://api.anidb.net:9001/httpapi?client=stinkinessclient&clientver=1&protover=1&request=anime&aid=" + id
-            ).then({
-                
+        for (let id in animeData.ids) {
+          fetch("http://api.anidb.net:9001/httpapi?client=stinkinessclient&clientver=1&protover=1&request=anime&aid=" + id)
+            .then((aniData) => {
+            var parseString = require('xml2js').parseString;
+            parseString(aniData, function (err, jsonAnime) {
+                animeList.push(jsonAnime);
             });
           });
         }
-
-        // list of ids
-        // search infos from this list of ids
-
-        return { animes: data.drinks, search: searchTerm };
+        return { animes: animeList, search: searchTerm };
       }
     });
 }

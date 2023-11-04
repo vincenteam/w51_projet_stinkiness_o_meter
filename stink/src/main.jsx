@@ -29,7 +29,7 @@ const router = createBrowserRouter(
         {
           path: "search",
           loader: searchAnimesLoader,
-          element: <SearchAnimes />,
+          element: <Animes />,
           errorElement: <Error />,
           children: [
             {
