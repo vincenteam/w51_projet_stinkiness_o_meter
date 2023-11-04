@@ -4,7 +4,7 @@ import { parseStringPromise } from "xml2js";
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
-  let searchTerm = url.searchParams.get("animes");
+  let searchTerm = url.searchParams.get("search");
   if (!searchTerm) {
     // If the searchTerm is empty, return an empty list
     return { animes: [], search: "" };
@@ -57,7 +57,7 @@ function Animes() {
           <input
             id="search"
             type="text"
-            name="animes"
+            name="search"
             placeholder="Search for animes"
             value={useEffect(() => {
               document.getElementById("search").value = loaded.search;
