@@ -1,10 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import "./index.css";
 
-import React from "react";
-import ReactDOM from "react-dom/client";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -16,9 +12,9 @@ import {
 
 //import '@/index.css';
 
-import Root from "@/routes/root";
-import { SearchAni } from "@/routes/search";
-import Error from "@/error";
+import Root from "./routes/root";
+import { Animes, searchAnimesLoader } from "./routes/search";
+import Error from "./error";
 
 const router = createBrowserRouter(
   [
@@ -30,18 +26,7 @@ const router = createBrowserRouter(
           path: "search",
           loader: searchAnimesLoader,
           element: <Animes />,
-          errorElement: <Error />,
-          children: [
-            {
-              index: true,
-              element: <span>No animes to show</span>,
-            },
-            {
-              path: ":animeId",
-              loader: searchAniLoader,
-              element: <SearchAni />,
-            },
-          ],
+          //errorElement: <Error />,
         },
       ],
     },

@@ -1,17 +1,18 @@
 import { Form, Link, Outlet, useLoaderData } from "react-router-dom";
 import { useEffect } from "react";
-import { parseStringPromise } from "xml2js";
+import { parseString } from "xml2js";
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
   let searchTerm = url.searchParams.get("search");
   if (!searchTerm) {
+    console.log("no term");
     // If the searchTerm is empty, return an empty list
     return { animes: [], search: "" };
   }
 
   //Request to our backend to get the ids corresponding to the searchTerm
-  return fetch("http://localhost:4200/searchAniIds?s=" + searchTerm)
+  return fetch("http://localhost:4200/searchAniIds?search=" + searchTerm)
     .then((response) => {
       // Convert text data into json -> data is the ids of ids corresponding
       return response.json();
@@ -25,29 +26,32 @@ export function searchAnimesLoader({ request }) {
         // Else, for each id in the returned list, fetch the corresponding data from the anidb api
         let animeList = [];
         let promiseList = [];
-        for (let id in animeData.ids) {
+        for (let id of animeData.ids) {
           promiseList.push(
             fetch(
-              "http://api.anidb.net:9001/httpapi?client=stinkinessclient&clientver=1&protover=1&request=anime&aid=" +
+              "http://api.anidb.net:9001/httpapi?client=stinkinessclienn&clientver=1&protover=1&request=anime&aid=" +
                 id
-            )
+            ).then((data) => {
+              return data.text();
+            })
           );
         }
-        Promise.all(promiseList).then((aniData) => {
-          var parseString = require("xml2js").parseString;
-          for (let anime in aniData) {
-            parseString(anime, function (err, jsonAnime) {
+        return Promise.all(promiseList).then((aniData) => {
+          for (let anime of aniData) {
+            console.log(anime);
+            parseString(anime, ({err, jsonAnime}) => {
               animeList.push(jsonAnime);
               console.log(err);
             });
           }
+          console.log(animeList);
+          return { animes: animeList, search: searchTerm };
         });
-        return { animes: animeList, search: searchTerm };
       }
     });
 }
 
-function Animes() {
+export function Animes() {
   let loaded = useLoaderData();
   return (
     <>
