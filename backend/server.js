@@ -1,4 +1,6 @@
 "use strict";
+const xml2js = require("xml2js");
+const fs = require("fs");
 
 const express = require("express"),
   cors = require("cors");
@@ -57,14 +59,39 @@ app.post("/purgoAnimeum", (req, res, next) => {
   Promise.all(fetches).then((responses) => {
     Promise.all(responses.map((response) => response.json())).then((data) => {
       for (const censored of data) {
-        ban_word_count += censored.result.split(replacement_char).length -1
+        ban_word_count += censored.result.split(replacement_char).length - 1;
       }
-      res.json({count: ban_word_count})
+      res.json({ count: ban_word_count });
     });
   });
 });
 
+let anim_list = null
 
+fs.readFile("anime-titles.xml", "utf8", function (err, f) {
+  xml2js.parseString(f, function (err, json) {
+    anim_list = json.animetitles.anime
+    console.log("file loaded")
+  });
+});
+
+app.get("/searchAniIds", (req, res, next) => {
+  const s = req.query.search
+  console.log(s)
+  const ids = []
+  for (const anim of anim_list){
+    for(const title of anim.title){
+      if (title._.toLowerCase().includes(s)){
+        console.log(anim)
+        console.log(title)
+        ids.push(anim.$.aid)
+        break;
+      }
+    }
+  }
+
+  res.json(ids)
+});
 
 // launch server
 const server = app.listen(4200, function () {
