@@ -17,16 +17,20 @@ export function searchAnimesLoader({ request }) {
       // Convert text data into json -> data is the ids of ids corresponding
       return response.json();
     })
-    .then((animeData) => {
+    .then((animeIds) => {
       // Fetch-ception to get the other infos on the animes that match the searchTerm
-      if (animeData.ids.length === 0) {
+      if (animeIds.length === 0) {
         // If the list of ids is empty, return an empty list
         return { animes: [], search: searchTerm };
       } else {
-        // Else, for each id in the returned list, fetch the corresponding data from the anidb api
+        console.log(animeIds);
+        return { animes: animeIds, search: searchTerm };
+
+
+        {/*// Else, for each id in the returned list, fetch the corresponding data from the anidb api
         let animeList = [];
         let promiseList = [];
-        for (let id of animeData.ids) {
+        for (let id of animeIds.ids) {
           promiseList.push(
             fetch(
               "http://api.anidb.net:9001/httpapi?client=stinkinessclienn&clientver=1&protover=1&request=anime&aid=" +
@@ -47,8 +51,9 @@ export function searchAnimesLoader({ request }) {
           console.log(animeList);
           return { animes: animeList, search: searchTerm };
         });
-      }
-    });
+      }*/}
+
+    }});
 }
 
 export function Animes() {
@@ -69,13 +74,13 @@ export function Animes() {
           />{" "}
           <button type="submit">Search</button>
         </Form>
-        {loaded.cocktails.length > 0 ? (
+        {loaded.animes.length > 0 ? (
           <nav>
             <ul>
-              {loaded.cocktails.map((drink) => {
+              {loaded.animes.map((animeId) => {
                 return (
-                  <li key={drink.idDrink}>
-                    <Link to={drink.idDrink}>{drink.strDrink}</Link>
+                  <li key={animeId}>
+                    <Link to={animeId}>Anime name</Link>
                   </li>
                 );
               })}
@@ -90,7 +95,7 @@ export function Animes() {
       </div>
       <div id="detail">
         <Outlet />{" "}
-        {/* la sous-route (détail du cocktail courant) sera rendue ici */}
+        {/* la sous-route (détail de la puanteur avec le diagramme) sera rendue ici */}
       </div>
     </>
   );
