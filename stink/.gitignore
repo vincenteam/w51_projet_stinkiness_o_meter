@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Cache
-anime_info_cache.json
+backend/anime_info_cache.json
