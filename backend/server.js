@@ -28,6 +28,7 @@ app.use(function (err, req, res, next) {
 const ban_words_file = require("./ban_anime_words.json");
 const ban_words = [];
 const max_ban_words = 10; // limit of custom banwords for purgo malum
+const language_code = "en"; // code used by anidb for english
 
 while (ban_words_file.words.length > 0)
   // cut our list of banwords in sublists of len 10
@@ -87,10 +88,13 @@ app.get("/searchAniIds", (req, res, next) => {
   const ids = [];
   for (const anim of anim_list) {
     for (const title of anim.title) {
-      if (title._.toLowerCase().includes(s)) {
-        console.log(anim);
-        console.log(title);
-        ids.push(anim.$.aid);
+      if (title.$["xml:lang"] === language_code) {
+        if (title._.toLowerCase().includes(s)) {
+          console.log(anim);
+          console.log(title);
+          ids.push(anim.$.aid);
+          break;
+        }
         break;
       }
     }
@@ -104,7 +108,7 @@ app.get("/animeInfo", (req, res, next) => {
 
   if (id in anime_info_cache) {
     res.json(anime_info_cache[id]);
-    console.log("using cache")
+    console.log("using cache");
   } else {
     fetch(
       "http://api.anidb.net:9001/httpapi?client=stinkinessclienn&clientver=1&protover=1&request=anime&aid=" +
@@ -112,18 +116,29 @@ app.get("/animeInfo", (req, res, next) => {
     )
       .then((data) => {
         return data.text();
-
       })
       .then((anime_desc) => {
         xml2js.parseString(anime_desc, (err, jsonAnime) => {
           if (err) {
             res.json({ error: "an error ocurred" });
           } else {
-            anime_info_cache[id] = jsonAnime;
-            res.json(jsonAnime)
-            console.log("using anidb")
-          }
+            const info = jsonAnime.anime;
 
+            res.json(info);
+
+            const info_formatted = {};
+
+            info_formatted.id = info.$.id;
+            info_formatted.episode_count = info.episode_count;
+            /*for(title of ){
+
+            }*/
+
+            anime_info_cache[id] = info_formatted;
+            console.log("formatted", info_formatted);
+
+            console.log("using anidb");
+          }
         });
       });
   }
