@@ -44,7 +44,10 @@ export function searchAnimesLoader({ request }) {
 
 export function Animes() {
   let loaded = useLoaderData();
-  //console.log("here : " + loaded.animes.title);
+  console.log("here : " + loaded.animes[0]);
+
+  const tempDictionary = {"tempkey0":0, "tempkey1":1, "tempkey2":2, "tempkey3":3, "tempkey4":4, "tempkey5":5};
+
   return (
     <>
       <div id="sidebar">
@@ -64,13 +67,24 @@ export function Animes() {
         {loaded.animes.length > 0 ? (
           <nav>
             <ul>
-              {loaded.animes.map((anime) => {
+              {Object.entries(tempDictionary).map(([k,v]) => {
                 return (
-                  <li key={anime.aid}>
-                    <Link to={anime.aid}>{ anime.title }</Link>
+                  <li key={k}>
+                    <p>{k}</p>
+                    {/*
+                      Should be a link to dashboard
+                      Also, the anime clicked should be added to the UserAnime (with an action I suppose)
+                    */}
                   </li>
                 );
               })}
+              {/*{loaded.animes.map((anime) => {
+                return (
+                  <li key={seconds}>
+                    <Link to={anime.aid}>{ anime.title }</Link>
+                  </li>
+                );
+              })}*/}
             </ul>
           </nav>
         ) : (
