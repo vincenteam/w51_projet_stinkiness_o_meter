@@ -26,6 +26,7 @@ const router = createBrowserRouter(
           path: "search",
           loader: searchAnimesLoader,
           element: <Animes />,
+          errorElement: <Error />,
           children: [
             {
               path : "dashboard",
