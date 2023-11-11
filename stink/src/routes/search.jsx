@@ -23,41 +23,28 @@ export function searchAnimesLoader({ request }) {
         // If the list of ids is empty, return an empty list
         return { animes: [], search: searchTerm };
       } else {
-        console.log(animeIds);
-        return { animes: animeIds, search: searchTerm };
-
-
-        {/*// Else, for each id in the returned list, fetch the corresponding data from the anidb api
+        // If not, then ask the backend for the full anime data
         let animeList = [];
         let promiseList = [];
         for (let id of animeIds.ids) {
           promiseList.push(
-            fetch(
-              "http://api.anidb.net:9001/httpapi?client=stinkinessclienn&clientver=1&protover=1&request=anime&aid=" +
-                id
-            ).then((data) => {
+            fetch("http://localhost:4200/animeInfo?id=" + id).then((data) => {
               return data.text();
             })
           );
         }
         return Promise.all(promiseList).then((aniData) => {
           for (let anime of aniData) {
-            console.log(anime);
-            parseString(anime, ({err, jsonAnime}) => {
-              animeList.push(jsonAnime);
-              console.log(err);
-            });
+            animeList.push(anime);
           }
-          console.log(animeList);
           return { animes: animeList, search: searchTerm };
         });
-      }*/}
-
     }});
 }
 
 export function Animes() {
   let loaded = useLoaderData();
+  //console.log("here : " + loaded.animes.title);
   return (
     <>
       <div id="sidebar">
@@ -77,10 +64,10 @@ export function Animes() {
         {loaded.animes.length > 0 ? (
           <nav>
             <ul>
-              {loaded.animes.map((animeId) => {
+              {loaded.animes.map((anime) => {
                 return (
-                  <li key={animeId}>
-                    <Link to={animeId}>Anime name</Link>
+                  <li key={anime.aid}>
+                    <Link to={anime.aid}>{ anime.title }</Link>
                   </li>
                 );
               })}
