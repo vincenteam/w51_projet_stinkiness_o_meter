@@ -174,12 +174,12 @@ app.get("/animeInfo", (req, res, next) => {
                 });
               }
             }
-            if (info.description[0]) {
+            if (info.description) {
               info_formatted.desc = info.description[0];
             } else {
               info_formatted.des = "";
             }
-            if (info.picture[0]) {
+            if (info.picture) {
               info_formatted.picture = info.picture[0];
             } else {
               info_formatted.picture = default_picture_url;
