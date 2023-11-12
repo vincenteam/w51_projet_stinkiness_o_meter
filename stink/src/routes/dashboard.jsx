@@ -1,26 +1,42 @@
 import { useState } from "react";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
-import {Doughnut} from 'react-chartjs-2';
-import { Form, Link, Outlet, useLoaderData } from "react-router-dom";
+import { Doughnut } from "react-chartjs-2";
+import {
+  Form,
+  Link,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useParams,
+} from "react-router-dom";
+import { Anime } from "./anime";
+import { useEffect } from "react";
 
-Chart.register(
-  ArcElement,
-  Tooltip,
-  Legend
-);
+Chart.register(ArcElement, Tooltip, Legend);
 
 export function dashboardLoader({ request }) {
   console.log("dashboard loader", request);
+
+  return { title: "haaaaaaaaaaaa" };
 }
 
 export function Dashboard() {
   let loaded = useLoaderData();
+  const [anime_list, setAnime_list] = useState([]);
+
+  const location = useLocation();
+  console.log("location", location);
+  const state = location.state;
+
+  useEffect(() => {
+    console.log("triggered");
+  }, [state]);
 
   return (
     <>
       <Doughnutchart></Doughnutchart>
       <br />
-      <UserAnimes></UserAnimes>
+      <UserAnimes anime_list={anime_list}></UserAnimes>
     </>
   );
 }
@@ -28,32 +44,36 @@ export function Dashboard() {
 export function Doughnutchart() {
   //Data that will be used in the doughnutChart
   //Will need to be changed based on UserAnimes list
+
   const data = {
-    labels: ['Yes', 'No'],
-    datasets:[{
-      label: 'Poll',
-      data: [3,6],
-      backgroundColor: ['black', 'red'],
-      borderColor: ['black', 'red']
-    }]
-  }
+    labels: ["Yes", "No"],
+    datasets: [
+      {
+        label: "Poll",
+        data: [3, 6],
+        backgroundColor: ["black", "red"],
+        borderColor: ["black", "red"],
+      },
+    ],
+  };
 
-  const options = {
-
-  }
+  const options = {};
   return (
-    <div style={ { width: '50%', height: '50%' } }>
-      <Doughnut data= {data} options= {options}></Doughnut>
+    <div style={{ width: "50%", height: "50%" }}>
+      <Doughnut data={data} options={options}></Doughnut>
     </div>
   );
 }
 
-export function UserAnimes() {
-  const anime_list = useState([]);
-
+export function UserAnimes({ anime_list }) {
   return (
     <>
-      <p>UserAnime will be here in the future</p>
+      <h3>Selected animes</h3>
+      <ul>
+        {anime_list.map((anime) => {
+          return <Anime anime={anime}></Anime>;
+        })}
+      </ul>
     </>
   );
 }

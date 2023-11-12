@@ -16,7 +16,7 @@ import Root from "./routes/root";
 import { Animes, searchAnimesLoader } from "./routes/search";
 import Error from "./error";
 //import { Dashboard, dashboardLoader } from "./routes/dashboard";
-import { Dashboard } from "./routes/dashboard";
+import { Dashboard, dashboardLoader } from "./routes/dashboard";
 
 const router = createBrowserRouter(
   [
@@ -32,7 +32,7 @@ const router = createBrowserRouter(
           children: [
             {
               path : "dashboard",
-              //loader: dashboardLoader,
+              loader: dashboardLoader,
               element : <Dashboard/>
             }
           ]

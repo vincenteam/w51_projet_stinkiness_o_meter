@@ -1,8 +1,8 @@
-import { Form, Outlet, useLoaderData } from "react-router-dom";
+import { Form, Outlet, useLoaderData, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { parseString } from "xml2js";
 import { Anime } from "./anime.jsx";
-import { LinkWithQuery } from '../linkWithQuery';
+import { LinkWithQuery } from "../linkWithQuery";
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
@@ -47,6 +47,7 @@ export function searchAnimesLoader({ request }) {
 
 export function Animes() {
   let loaded = useLoaderData();
+  const navigate = useNavigate();
   return (
     <>
       <div id="sidebar">
@@ -68,14 +69,21 @@ export function Animes() {
             <ul>
               {loaded.animes.map((anime) => {
                 return (
-                  <li key={anime.id}>
+                  <li
+                    key={anime.id}
+                    onClick={() => {
+                      navigate("/search/dashboard?search=" + loaded.search, {
+                        replace: true,
+                        state: { anime: anime },
+                      });
+                    }}
+                  >
                     {/*
                     Au click sur le titre d'un Anime :
                     - passer les données en params
                     - trigger le loader / action du dashboard
                     */}
-                    {/*<Link to={{ pathname:'/search/dashboard?search=' + loaded.search, state:{ anime } }}><Anime anime={anime}></Anime></Link>*/}
-                    <LinkWithQuery to={'/search/dashboard'} props={ anime }><Anime anime={anime}></Anime></LinkWithQuery>
+                    <Anime anime={anime}></Anime>
                   </li>
                 );
               })}
