@@ -1,6 +1,8 @@
-import { Form, Link, Outlet, useLoaderData } from "react-router-dom";
+import { Form, Outlet, useLoaderData } from "react-router-dom";
 import { useEffect } from "react";
 import { parseString } from "xml2js";
+import { Anime } from "./anime.jsx";
+import { LinkWithQuery } from '../linkWithQuery';
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
@@ -29,7 +31,7 @@ export function searchAnimesLoader({ request }) {
         for (let id of animeIds.ids) {
           promiseList.push(
             fetch("http://localhost:4200/animeInfo?id=" + id).then((data) => {
-              return data.text();
+              return data.json();
             })
           );
         }
@@ -39,12 +41,12 @@ export function searchAnimesLoader({ request }) {
           }
           return { animes: animeList, search: searchTerm };
         });
-    }});
+      }
+    });
 }
 
 export function Animes() {
   let loaded = useLoaderData();
-  //console.log("here : " + loaded.animes.title);
   return (
     <>
       <div id="sidebar">
@@ -66,8 +68,14 @@ export function Animes() {
             <ul>
               {loaded.animes.map((anime) => {
                 return (
-                  <li key={anime.aid}>
-                    <Link to={anime.aid}>{ anime.title }</Link>
+                  <li key={anime.id}>
+                    {/*
+                    Au click sur le titre d'un Anime :
+                    - passer les données en params
+                    - trigger le loader / action du dashboard
+                    */}
+                    {/*<Link to={{ pathname:'/search/dashboard?search=' + loaded.search, state:{ anime } }}><Anime anime={anime}></Anime></Link>*/}
+                    <LinkWithQuery to={'/search/dashboard'} props={ anime }><Anime anime={anime}></Anime></LinkWithQuery>
                   </li>
                 );
               })}
@@ -81,7 +89,8 @@ export function Animes() {
         )}
       </div>
       <div id="detail">
-        <Outlet />{" "}{/* la sous-route (détail de la puanteur avec le diagramme) sera rendue ici */}
+        <Outlet />{" "}
+        {/* la sous-route (détail de la puanteur avec le diagramme) sera rendue ici */}
       </div>
     </>
   );
