@@ -46,6 +46,7 @@ export function Animes() {
   let loaded = useLoaderData();
   console.log("here : " + loaded.animes[0]);
 
+  //Temporary :
   const tempDictionary = {"tempkey0":0, "tempkey1":1, "tempkey2":2, "tempkey3":3, "tempkey4":4, "tempkey5":5};
 
   return (
@@ -67,6 +68,7 @@ export function Animes() {
         {loaded.animes.length > 0 ? (
           <nav>
             <ul>
+              {/*Temporary start :*/}
               {Object.entries(tempDictionary).map(([k,v]) => {
                 return (
                   <li key={k}>
@@ -78,9 +80,10 @@ export function Animes() {
                   </li>
                 );
               })}
+              {/*Temporary end */}
               {/*{loaded.animes.map((anime) => {
                 return (
-                  <li key={seconds}>
+                  <li key={anime.id}>
                     <Link to={anime.aid}>{ anime.title }</Link>
                   </li>
                 );
@@ -95,8 +98,7 @@ export function Animes() {
         )}
       </div>
       <div id="detail">
-        <Outlet />{" "}
-        {/* la sous-route (détail de la puanteur avec le diagramme) sera rendue ici */}
+        <Outlet />{" "}{/* la sous-route (détail de la puanteur avec le diagramme) sera rendue ici */}
       </div>
     </>
   );
