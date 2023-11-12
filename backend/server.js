@@ -29,6 +29,8 @@ const ban_words_file = require("./ban_anime_words.json");
 const ban_words = [];
 const max_ban_words = 10; // limit of custom banwords for purgo malum
 const language_code = "en"; // code used by anidb for english
+const default_picture_url =
+  "https://imgb.ifunny.co/images/ca8519e72b8510082ab257d7f55d107de4ff72e0e19e2fe4fcd98d89feb5ea8c_1.webp";
 
 while (ban_words_file.words.length > 0)
   // cut our list of banwords in sublists of len 10
@@ -124,17 +126,89 @@ app.get("/animeInfo", (req, res, next) => {
           } else {
             const info = jsonAnime.anime;
 
-            res.json(info);
-
             const info_formatted = {};
 
             info_formatted.id = info.$.id;
-            info_formatted.episode_count = info.episode_count;
-            /*for(title of ){
 
-            }*/
+            // get title in english or default to first title
+            let english_title_found = false;
+            console.log(info);
+            for (let title of info.titles[0].title) {
+              if (title.$["xml:lang"] === language_code) {
+                english_title_found = true;
+                info_formatted.title = title._;
+              }
+            }
+            if (!english_title_found) {
+              info_formatted.title = info.titles[0].title[0]._;
+            }
+
+            info_formatted.episode_count = info.episodecount[0];
+            info_formatted.type = info.type[0];
+            info_formatted.related = [];
+            if (info.relatedanime) {
+              for (let related of info.relatedanime[0].anime) {
+                info_formatted.related.push(related.$.id);
+              }
+            }
+
+            info_formatted.similar = [];
+            if (info.similaranime) {
+              for (let similar of info.similaranime[0].anime) {
+                info_formatted.similar.push({
+                  id: similar.$.id,
+                  similarity_ratio: similar.$.approval / similar.$.total,
+                });
+              }
+            }
+
+            info_formatted.recommendations = [];
+            if (
+              info.recommendations &&
+              info.recommendations[0].recommendation
+            ) {
+              for (let rec of info.recommendations[0].recommendation) {
+                info_formatted.recommendations.push({
+                  text: rec._,
+                  rank: rec.$.type,
+                });
+              }
+            }
+            if (info.description[0]) {
+              info_formatted.desc = info.description[0];
+            } else {
+              info_formatted.des = "";
+            }
+            if (info.picture[0]) {
+              info_formatted.picture = info.picture[0];
+            } else {
+              info_formatted.picture = default_picture_url;
+            }
+
+            info_formatted.tags = [];
+            if (info.tags) {
+              for (let tag of info.tags[0].tag) {
+                
+                info_formatted.tags.push({
+                  name: tag.name[0],
+                  desc: tag.description ? tag.description[0] : "",
+                });
+              }
+            }
+
+            info_formatted.characters = [];
+            if (info.characters[0].character) {
+              for (let char of info.characters[0].character) {
+                info_formatted.characters.push(char.description ? char.description[0] : "");
+              }
+            }
+
 
             anime_info_cache[id] = info_formatted;
+
+
+            res.json(info_formatted);
+
             console.log("formatted", info_formatted);
 
             console.log("using anidb");
