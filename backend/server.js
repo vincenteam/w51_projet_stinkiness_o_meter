@@ -137,6 +137,7 @@ app.get("/animeInfo", (req, res, next) => {
               if (title.$["xml:lang"] === language_code) {
                 english_title_found = true;
                 info_formatted.title = title._;
+                break;
               }
             }
             if (!english_title_found) {
@@ -188,7 +189,6 @@ app.get("/animeInfo", (req, res, next) => {
             info_formatted.tags = [];
             if (info.tags) {
               for (let tag of info.tags[0].tag) {
-                
                 info_formatted.tags.push({
                   name: tag.name[0],
                   desc: tag.description ? tag.description[0] : "",
@@ -199,13 +199,13 @@ app.get("/animeInfo", (req, res, next) => {
             info_formatted.characters = [];
             if (info.characters[0].character) {
               for (let char of info.characters[0].character) {
-                info_formatted.characters.push(char.description ? char.description[0] : "");
+                info_formatted.characters.push(
+                  char.description ? char.description[0] : ""
+                );
               }
             }
 
-
             anime_info_cache[id] = info_formatted;
-
 
             res.json(info_formatted);
 
