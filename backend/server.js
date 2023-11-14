@@ -197,7 +197,7 @@ app.get("/animeInfo", (req, res, next) => {
             }
 
             info_formatted.characters = [];
-            if (info.characters[0].character) {
+            if (info.characters) {
               for (let char of info.characters[0].character) {
                 info_formatted.characters.push(
                   char.description ? char.description[0] : ""
