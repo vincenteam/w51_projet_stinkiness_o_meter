@@ -15,7 +15,6 @@ import {
 import Root from "./routes/root";
 import { Animes, searchAnimesLoader } from "./routes/search";
 import Error from "./error";
-//import { Dashboard, dashboardLoader } from "./routes/dashboard";
 import { Dashboard, dashboardLoader } from "./routes/dashboard";
 
 const router = createBrowserRouter(
