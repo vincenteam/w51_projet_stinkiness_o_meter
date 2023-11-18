@@ -32,6 +32,9 @@ export function searchAnimesLoader({ request }) {
           promiseList.push(
             fetch("http://localhost:4200/animeInfo?id=" + id).then((data) => {
               return data.json();
+            }).catch(function(err)
+            {
+               return null
             })
           );
         }
@@ -39,8 +42,9 @@ export function searchAnimesLoader({ request }) {
           console.log(aniData);
           console.log(aniData[0].recommandations.join());
           for (let anime of aniData) {
-
-            animeList.push(anime);
+            if (anime){
+              animeList.push(anime);
+            }
           }
           return { animes: animeList, search: searchTerm };
         });
@@ -48,9 +52,14 @@ export function searchAnimesLoader({ request }) {
     });
 }
 
-export function Animes() {
+export function Animes({addAnime}) {
   let loaded = useLoaderData();
   const navigate = useNavigate();
+
+  function onSelectAnime(){
+
+  }
+
   return (
     <>
       <div id="sidebar">
@@ -70,22 +79,13 @@ export function Animes() {
         {loaded.animes.length > 0 ? (
           <nav>
             <ul>
-              {loaded.animes.map((anime) => {
+              {
+              loaded.animes.map((anime) => {
                 return (
                   <li
                     key={anime.id}
-                    onClick={() => {
-                      navigate("/search/dashboard?search=" + loaded.search, {
-                        replace: true,
-                        state: { anime: anime },
-                      });
-                    }}
+                    onClick={()=>addAnime(anime)}
                   >
-                    {/*
-                    Au click sur le titre d'un Anime :
-                    - passer les données en params
-                    - trigger le loader / action du dashboard
-                    */}
                     <Anime anime={anime}></Anime>
                   </li>
                 );
@@ -98,10 +98,6 @@ export function Animes() {
             Search for animes
           </nav>
         )}
-      </div>
-      <div id="detail">
-        <Outlet />{" "}
-        {/* la sous-route (détail de la puanteur avec le diagramme) sera rendue ici */}
       </div>
     </>
   );

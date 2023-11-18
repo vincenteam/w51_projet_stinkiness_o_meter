@@ -5,7 +5,7 @@ export default function Root() {
     <div>
       <header>
         <h2>
-          Welcome to the amazing stinkiness measurer based on your anime taste, the stink'o'meter !!! - <Link to="/search">Search for your animes</Link>
+          Welcome to the amazing stinkiness measurer based on your anime taste, the stink'o'meter !!! - <Link to="/dashboard">Search for your animes</Link>
         </h2>
       </header>
       <main>
