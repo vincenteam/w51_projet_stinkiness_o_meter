@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import { Anime } from "./anime";
 import { useEffect } from "react";
+import { Animes } from "./search";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -21,19 +22,18 @@ export function dashboardLoader({ request }) {
 }
 
 export function Dashboard() {
-  let loaded = useLoaderData();
   const [anime_list, setAnime_list] = useState([]);
 
-  const location = useLocation();
-  console.log("location", location);
-  const state = location.state;
-
-  useEffect(() => {
-    console.log("triggered");
-  }, [state]);
+  function onAddAnime(anime) {
+    const ids = anime_list.map(a => a.id)
+    if (! ids.includes(anime.id)){ // check if anime is already selected to avoid duplicates
+      setAnime_list((prevArray) => [...prevArray, anime]);
+    }
+  }
 
   return (
     <>
+      <Animes addAnime={onAddAnime} />
       <Doughnutchart></Doughnutchart>
       <br />
       <UserAnimes anime_list={anime_list}></UserAnimes>
@@ -66,12 +66,13 @@ export function Doughnutchart() {
 }
 
 export function UserAnimes({ anime_list }) {
+  console.log("anime_list in user", anime_list)
   return (
     <>
       <h3>Selected animes</h3>
       <ul>
         {anime_list.map((anime) => {
-          return <Anime anime={anime}></Anime>;
+          return <Anime key={anime.id} anime={anime}></Anime>;
         })}
       </ul>
     </>

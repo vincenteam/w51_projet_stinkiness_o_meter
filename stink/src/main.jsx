@@ -25,17 +25,10 @@ const router = createBrowserRouter(
       element: <Root />,
       children: [
         {
-          path: "search",
+          path: "dashboard",
           loader: searchAnimesLoader,
-          element: <Animes />,
+          element : <Dashboard/>,
           errorElement: <Error />,
-          children: [
-            {
-              path : "dashboard",
-              loader: dashboardLoader,
-              element : <Dashboard/>
-            }
-          ]
         },
       ],
     },

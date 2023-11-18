@@ -123,11 +123,12 @@ app.get("/animeInfo", (req, res, next) => {
         xml2js.parseString(anime_desc, (err, jsonAnime) => {
           if (err) {
             res.json({ error: "an error ocurred" });
-          } else {
+          } else if (jsonAnime.anime){
             const info = jsonAnime.anime;
 
             const info_formatted = {};
 
+            console.log(jsonAnime)
             info_formatted.id = info.$.id;
 
             // get title in english or default to first title
@@ -212,6 +213,8 @@ app.get("/animeInfo", (req, res, next) => {
             console.log("formatted", info_formatted);
 
             console.log("using anidb");
+          }else{
+            res.sendStatus(404);
           }
         });
       });
