@@ -36,7 +36,10 @@ export function searchAnimesLoader({ request }) {
           );
         }
         return Promise.all(promiseList).then((aniData) => {
+          console.log(aniData);
+          console.log(aniData[0].recommandations.join());
           for (let anime of aniData) {
+
             animeList.push(anime);
           }
           return { animes: animeList, search: searchTerm };

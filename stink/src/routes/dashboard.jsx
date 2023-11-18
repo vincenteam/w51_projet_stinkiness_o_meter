@@ -20,6 +20,79 @@ export function dashboardLoader({ request }) {
   return { title: "haaaaaaaaaaaa" };
 }
 
+function computeStinkiness( anime ){
+  //Total stinkiness score
+  let stinkiness = 0;
+
+  //Points from banwords
+  let nameBans;
+  let relatedBans;
+  let recommandationsBans;
+  let descBans;
+  let tagsBans;
+  let charactersBans;
+  let similarBans;
+
+  //Points from recommandations
+  let recommandationsPoints;
+
+  //Points from episode count (delete if we don't have time)
+  let episodeCountPoints;
+
+  //Points from characters
+  let charactersPoints;
+
+  let promiseList = [];
+
+  //BanWords points
+  promiseList.push(
+    fetch("http://localhost:4200/purgoAnimeum?search=" + anime.title)
+    .then((response) => {
+      console.log("Title = " + response);
+      nameBans = response * 5;
+    })
+  );
+  promiseList.push(
+    //Ne va peut-être pas marcher (liste d'objets js)
+    fetch("http://localhost:4200/purgoAnimeum?search=" + anime.recommandations.join())
+    .then((response) => {
+      console.log("Recommendations = " + response);
+      recommandationsBans = response * 2;
+    })
+  );
+  promiseList.push(
+    fetch("http://localhost:4200/purgoAnimeum?search=" + anime.desc)
+    .then((response) => {
+      console.log("Desc = " + response * 2);
+      descBans = response;
+    })
+  );
+  promiseList.push(
+    //Ne va peut-être pas marcher (liste d'objets js)
+    fetch("http://localhost:4200/purgoAnimeum?search=" + anime.tag.join())
+    .then((response) => {
+      console.log("Desc = " + response * 0.5);
+      tagsBans = response;
+    })
+  );
+  promiseList.push(
+    fetch("http://localhost:4200/purgoAnimeum?search=" + anime.characters.join())
+    .then((response) => {
+      console.log("Desc = " + response * 3);
+      charactersBans = response;
+    })
+  );
+
+  //Recommandations points
+  
+
+  return Promise.all(promiseList).then((stink) => {
+    for (let val of stink) {
+      stinkiness += val;
+    }
+  });
+}
+
 export function Dashboard() {
   let loaded = useLoaderData();
   const [anime_list, setAnime_list] = useState([]);

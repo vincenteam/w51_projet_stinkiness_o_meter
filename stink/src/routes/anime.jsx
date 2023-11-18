@@ -6,9 +6,6 @@ export function Anime({ anime }) {
   return (
     <>
       <span>{anime.title}</span>
-      <br />
-      <span>{anime.type}</span>
-      <div>{anime.desc}</div>
       <img src={base_anidb_images_url+anime.picture} alt="anime thubnail" />
     </>
   );
