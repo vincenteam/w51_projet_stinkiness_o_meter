@@ -12,7 +12,7 @@ export function searchAnimesLoader({ request }) {
   if (!searchTerm) {
     console.log("no term");
     // If the searchTerm is empty, return an empty list
-    return { animes: [], search: "" };
+    return { animes: [], search: null };
   }
 
   //Request to our backend to get the ids corresponding to the searchTerm
@@ -54,6 +54,10 @@ export function searchAnimesLoader({ request }) {
     });
 }
 
+function LoadingSign() {
+  return <div className="loading"></div>;
+}
+
 export function Animes({ addAnime }) {
   let loaded = useLoaderData();
   const [idsToLoad, setIdsToLoad] = useState([]);
@@ -73,7 +77,7 @@ export function Animes({ addAnime }) {
 
   function loadAnimeInfo(baseAnime, idsList) {
     // create promises to get info on the animes based on ids on the state
-    console.log("loaded", animes.length)
+    console.log("loaded", animes.length);
     if (!canRequest) {
       console.log("in timeout");
       return null;
@@ -119,12 +123,14 @@ export function Animes({ addAnime }) {
       });
     }
   }
-  console.log("ids", loaded.ids);
+
   useEffect(() => {
-    console.log("ids change", loaded.ids);
-    // remove ids that will be loaded from the state
-    setIdsToLoad(loaded.ids.slice(loadGroupSize));
-    loadAnimeInfo([], loaded.ids.slice(0, loadGroupSize));
+    if (loaded.ids) {
+      console.log("ids change", loaded.ids);
+      // remove ids that will be loaded from the state
+      setIdsToLoad(loaded.ids.slice(loadGroupSize));
+      loadAnimeInfo([], loaded.ids.slice(0, loadGroupSize));
+    }
   }, [loaded.ids]);
 
   useEffect(() => {
@@ -132,7 +138,7 @@ export function Animes({ addAnime }) {
       setCanRequest(true);
     }, 1000 * requestTimeOut);
   }, []);
-
+console.log("param", loaded.search)
   return (
     <>
       <div id="sidebar">
@@ -149,24 +155,34 @@ export function Animes({ addAnime }) {
           />{" "}
           <button type="submit">Search</button>
         </Form>
-        {animes.length > 0 ? (
-          <nav>
-            <ul className="search_results" onScroll={checkScroll}>
-              {animes.map((anime) => {
-                return (
-                  <li key={anime.id}>
-                    <Anime anime={anime}></Anime>
-                    <button onClick={() => addAnime(anime)}>add to list</button>
+        {loaded.search !== null ? (
+          idsToLoad.length !== 0 || animes.length !== 0 ? (
+            <nav>
+              <ul className="search_results" onScroll={checkScroll}>
+                {animes.map((anime) => {
+                  return (
+                    <li key={anime.id}>
+                      <Anime anime={anime}></Anime>
+                      <button onClick={() => addAnime(anime)}>
+                        add to list
+                      </button>
+                    </li>
+                  );
+                })}
+                {idsToLoad.length !== 0 ? (
+                  <li>
+                    <LoadingSign></LoadingSign> loading ...
                   </li>
-                );
-              })}
-            </ul>
-          </nav>
+                ) : (
+                  <></>
+                )}
+              </ul>
+            </nav>
+          ) : (
+            <div>no results</div>
+          )
         ) : (
-          <nav>
-            <br />
-            Search for animes
-          </nav>
+          <></>
         )}
       </div>
     </>
