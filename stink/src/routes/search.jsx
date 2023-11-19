@@ -43,6 +43,9 @@ export function searchAnimesLoader({ request }) {
           );
         }
         return Promise.all(promiseList).then((aniData) => {
+          console.log(aniData);
+          console.log("recommandations : ");
+          console.log(aniData[0].recommendations);
           for (let anime of aniData) {
             if (anime) {
               animeList.push(anime);

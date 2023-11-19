@@ -56,18 +56,18 @@ app.get("/testBackend", (req, res, next) => {
 
 app.post("/purgoAnimeum", (req, res, next) => {
   const replacement_char = "*";
-
+  console.log(req.body);
   const full_text = req.body.text.replaceAll(replacement_char, "_"); // to  avoid counting a star as a banword
   let texts = full_text.match(/.{1,1500}/g); // to stay under 2048 char url
 
-  console.log(texts);
+  //console.log(texts);
 
   const fetches = [];
 
   for (const text of texts) {
     for (let words of ban_words) {
       const url = `https://www.purgomalum.com/service/json?text=${text}&add=${words}&fill_text=*`;
-      console.log(url);
+      //console.log(url);
       fetches.push(fetch(url));
     }
   }
