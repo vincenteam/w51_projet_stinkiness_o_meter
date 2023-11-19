@@ -79,6 +79,7 @@ app.post("/purgoAnimeum", (req, res, next) => {
       for (const censored of data) {
         ban_word_count += censored.result.split(replacement_char).length - 1;
       }
+      console.log(ban_word_count)
       res.json({ count: ban_word_count });
     });
   });
@@ -123,12 +124,12 @@ app.get("/animeInfo", (req, res, next) => {
         xml2js.parseString(anime_desc, (err, jsonAnime) => {
           if (err) {
             res.json({ error: "an error ocurred" });
-          } else if (jsonAnime.anime){
+          } else if (jsonAnime.anime) {
             const info = jsonAnime.anime;
 
             const info_formatted = {};
 
-            console.log(jsonAnime)
+            console.log(jsonAnime);
             info_formatted.id = info.$.id;
 
             // get title in english or default to first title
@@ -213,7 +214,7 @@ app.get("/animeInfo", (req, res, next) => {
             console.log("formatted", info_formatted);
 
             console.log("using anidb");
-          }else{
+          } else {
             res.sendStatus(404);
           }
         });

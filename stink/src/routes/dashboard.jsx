@@ -23,7 +23,8 @@ export function dashboardLoader({ request }) {
 
 async function computeStinkiness(anime) {
   let promiseList = [];
-
+  console.log(anime);
+  console.log("title", anime.title);
   //BanWords points
   promiseList.push(
     fetch("http://localhost:4200/purgoAnimeum?search=", {
@@ -32,34 +33,43 @@ async function computeStinkiness(anime) {
         "Content-Type": "application/json",
         // You can add other headers as needed
       },
-      body: JSON.stringify({text:anime.title}),
-    }).then((response) => {
-      console.log("Title = " + response);
-      let nameBans = response * 5;
-      return { id: "1", points: nameBans };
+      body: JSON.stringify({ text: anime.title }),
     })
+      .then((res) => {
+        return res.json();
+      })
+      .then((response) => {
+        console.log("Title = " + response.count);
+        let nameBans = response.count * 5;
+        return { id: "1", points: nameBans };
+      })
   );
 
   //Concatener toutes les valeurs en une string pour ne pas avoir de problèmes d'objets
   let concatenatedRecommendations = "";
-  for 
+
+  for (const rec of anime.recommendations) {
+    concatenatedRecommendations += rec.text;
+  }
+  console.log("rec text", concatenatedRecommendations);
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
-    fetch(
-      "http://localhost:4200/purgoAnimeum?search=",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // You can add other headers as needed
-        },
-        body: JSON.stringify({text:anime.recommendations.text}),
-      }
-    ).then((response) => {
-      console.log("Recommendations = " + response);
-      let recommendationsBans = response * 2;
-      return { id: "2", points: recommendationsBans };
+    fetch("http://localhost:4200/purgoAnimeum?search=", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // You can add other headers as needed
+      },
+      body: JSON.stringify({ text: concatenatedRecommendations }),
     })
+      .then((res) => {
+        return res.json();
+      })
+      .then((response) => {
+        console.log("Recommendations = " + response.count);
+        let recommendationsBans = response.count * 2;
+        return { id: "2", points: recommendationsBans };
+      })
   );
 
   promiseList.push(
@@ -69,13 +79,25 @@ async function computeStinkiness(anime) {
         "Content-Type": "application/json",
         // You can add other headers as needed
       },
-      body: JSON.stringify({text:anime.desc}),
-    }).then((response) => {
-      console.log("Desc = " + response * 2);
-      descBans = response * 2;
-      return { id: "3", points: descBans };
+      body: JSON.stringify({ text: anime.desc }),
     })
+      .then((res) => {
+        return res.json();
+      })
+      .then((response) => {
+        console.log(response);
+        console.log("Desc = " + response.count * 2);
+        const descBans = response.count * 2;
+        return { id: "3", points: descBans };
+      })
   );
+
+  let tagsNDesc = "";
+
+  for (const tag of anime.tags) {
+    tagsNDesc += tag.name + " " + tag.desc;
+  }
+
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
     fetch("http://localhost:4200/purgoAnimeum?search=", {
@@ -84,29 +106,34 @@ async function computeStinkiness(anime) {
         "Content-Type": "application/json",
         // You can add other headers as needed
       },
-      body: JSON.stringify({text:anime.tags.join()}),
-    }).then((response) => {
-      console.log("Desc = " + response * 0.5);
-      let tagsBans = response * 0.5;
-      return { id: "4", points: tagsBans };
+      body: JSON.stringify({ text: tagsNDesc }),
     })
+      .then((res) => {
+        return res.json();
+      })
+      .then((response) => {
+        console.log("Desc = " + response.count * 0.5);
+        let tagsBans = response.count * 0.5;
+        return { id: "4", points: tagsBans };
+      })
   );
   promiseList.push(
-    fetch(
-      "http://localhost:4200/purgoAnimeum?search=",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // You can add other headers as needed
-        },
-        body: JSON.stringify({text:anime.characters.join()}),
-      }
-    ).then((response) => {
-      console.log("Desc = " + response * 3);
-      let charactersBans = response * 1;
-      return { id: "5", points: charactersBans };
+    fetch("http://localhost:4200/purgoAnimeum?search=", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // You can add other headers as needed
+      },
+      body: JSON.stringify({ text: anime.characters.join() }),
     })
+      .then((res) => {
+        return res.json();
+      })
+      .then((response) => {
+        console.log("Desc = " + response.count * 3);
+        let charactersBans = response.count * 1;
+        return { id: "5", points: charactersBans };
+      })
   );
 
   //Recommendations points
@@ -160,7 +187,8 @@ async function computeStinkiness(anime) {
 
   let stinkList = [];
   await Promise.all(promiseList).then((stinkLst) => {
-    for (elem of stinkLst) {
+    console.log("lst", stinkList);
+    for (const elem of stinkLst) {
       stinkList.push(elem);
     }
   });
@@ -168,10 +196,12 @@ async function computeStinkiness(anime) {
   stinkList.push({ id: "7", points: episodeCountPoints });
 
   let stinkiness = recommendationsPoints + episodeCountPoints;
-  for (element of stinkList) {
+  for (const element of stinkList) {
     stinkiness += element.points;
   }
   stinkList.push({ id: "0", points: stinkiness });
+
+  console.log(stinkList);
 
   return stinkList;
 }
