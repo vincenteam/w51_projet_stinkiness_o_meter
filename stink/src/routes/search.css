@@ -1,0 +1,11 @@
+.search_results {
+  margin: 20px auto;
+  border: 1px solid #ccc;
+  overflow-y: auto; /* Enable vertical scrollbar when needed */
+  max-height: 200px; /* Set a max height for the list */
+}
+
+.search_results li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
