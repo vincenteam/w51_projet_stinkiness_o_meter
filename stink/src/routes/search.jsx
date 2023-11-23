@@ -1,4 +1,4 @@
-import { Form, Outlet, useLoaderData, useNavigate } from "react-router-dom";
+import { Form, Outlet, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { parseString } from "xml2js";
 import { Anime } from "./anime.jsx";
@@ -66,7 +66,8 @@ export function Animes({ addAnime }) {
   const [idsToLoad, setIdsToLoad] = useState([]);
   const [animes, setAnimes] = useState([]);
   const [canRequest, setCanRequest] = useState(true);
-
+  const { state } = useNavigation();
+  console.log(state, loaded, animes, idsToLoad)
   let requestTimeOut = 10; // timeout of requests to backend
   const loadGroupSize = 10;
 
@@ -155,11 +156,12 @@ console.log("param", loaded.search)
             value={useEffect(() => {
               document.getElementById("search").value = loaded.search;
             }, [loaded.search])}
+            
           />{" "}
-          <button type="submit">Search</button>
+          <button type="submit" disabled={state === "loading" ? true : false}>Search</button>
         </Form>
         {loaded.search !== null ? (
-          idsToLoad.length !== 0 || animes.length !== 0 ? (
+          loaded.ids.length !== 0 || animes.length !== 0? ( (
             <nav>
               <ul className="search_results" onScroll={checkScroll}>
                 {animes.map((anime) => {
@@ -172,7 +174,7 @@ console.log("param", loaded.search)
                     </li>
                   );
                 })}
-                {idsToLoad.length !== 0 ? (
+                { animes.length === 0 ? (
                   <li>
                     <LoadingSign></LoadingSign> loading ...
                   </li>
@@ -181,7 +183,7 @@ console.log("param", loaded.search)
                 )}
               </ul>
             </nav>
-          ) : (
+          )) : (
             <div>no results</div>
           )
         ) : (
