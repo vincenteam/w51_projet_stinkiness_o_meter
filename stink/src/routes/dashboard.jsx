@@ -21,6 +21,7 @@ export function dashboardLoader({ request }) {
   return { title: "haaaaaaaaaaaa" };
 }
 
+//returns a list of { id, points }, with the id 0 being the total score and the ids 1 to 7 the different parts of the score
 async function computeStinkiness(anime) {
   let promiseList = [];
   console.log(anime);
@@ -39,7 +40,7 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Title = " + response.count);
+        console.log("Title = " + response.count * 5);
         let nameBans = response.count * 5;
         return { id: "1", points: nameBans };
       })
@@ -66,7 +67,7 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Recommendations = " + response.count);
+        console.log("Recommendations = " + response.count * 2);
         let recommendationsBans = response.count * 2;
         return { id: "2", points: recommendationsBans };
       })
@@ -112,7 +113,7 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Desc = " + response.count * 0.5);
+        console.log("Tags = " + response.count * 0.5);
         let tagsBans = response.count * 0.5;
         return { id: "4", points: tagsBans };
       })
@@ -130,8 +131,8 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Desc = " + response.count * 3);
-        let charactersBans = response.count * 1;
+        console.log("Characters = " + response.count * 3);
+        let charactersBans = response.count * 3;
         return { id: "5", points: charactersBans };
       })
   );
@@ -182,7 +183,7 @@ async function computeStinkiness(anime) {
   //Points on number of episodes
   let episodeCountPoints = 0;
   if (anime.episode_count > 20) {
-    episodeCountPoints += 0.5 * (episode_count - 20);
+    episodeCountPoints += 0.5 * (anime.episode_count - 20);
   }
 
   let stinkList = [];
@@ -195,19 +196,37 @@ async function computeStinkiness(anime) {
   stinkList.push({ id: "6", points: recommendationsPoints });
   stinkList.push({ id: "7", points: episodeCountPoints });
 
-  let stinkiness = recommendationsPoints + episodeCountPoints;
+  let stinkiness = 0;
   for (const element of stinkList) {
     stinkiness += element.points;
   }
   stinkList.push({ id: "0", points: stinkiness });
 
-  console.log(stinkList);
+  //console.log(stinkList);
 
   return stinkList;
 }
 
 export function Dashboard() {
   const [anime_list, setAnime_list] = useState([]);
+  const [data, updateDoughnutData] = useState({
+    labels: [],
+    datasets: [
+      {
+        label: "",
+        data: [],
+        backgroundColor: [],
+        borderColor: [],
+      },
+    ],
+  });
+
+  function dynamicColors() {
+    let r = Math.floor(Math.random() * 255);
+    let g = Math.floor(Math.random() * 255);
+    let b = Math.floor(Math.random() * 255);
+    return "rgb(" + r + "," + g + "," + b + ")";
+  }
 
   const testAnime = {
     id: "2722",
@@ -373,47 +392,68 @@ export function Dashboard() {
     characters: ["", ""],
   };
 
-  console.log(computeStinkiness(testAnime));
+  //console.log(computeStinkiness(testAnime));
 
-  function onAddAnime(anime) {
+  async function onAddAnime(anime) {
     const ids = anime_list.map((a) => a.id);
     if (!ids.includes(anime.id)) {
       // check if anime is already selected to avoid duplicates
       setAnime_list((prevArray) => [...prevArray, anime]);
+
+      //Updating Doughnut
+      const stinkLst = await computeStinkiness(anime);
+      //console.log("HERE (stinkLst)");
+      //console.log(stinkLst);
+      /*
+      Idées d'implémentations :
+      - Classement de points par anime, on voit les détails de provenance des points quand on hover
+      - Classement de points par origine (genre tags ou desc) et on voit quels animes donnent tant de points quand on hover
+      - Classement de quels animes donnent combien de points, et aucune info quand on hover
+
+      Idée qui semble la plus pertinente : la troisième, parce que dans le premier cas l'utilisateur peut rentrer trop d'animes (même si dans le 3 aussi),
+      et dans le deuxième ça va faire trop surnaturel de voir écrit genre "points de la description" ou "points des tags"
+
+      StinkLst contains 8 elements :
+      0:stinkiness 1:name 2:recommendations(text) 3:desc 4:tags 5:characters 6:recommendations(ranks) 7:nbEpisodes
+      */
+
+      const dynamiColor = dynamicColors();
+      let labelsAnimes = [anime.title];
+      let datasetAnimes = {
+        label: "Animes",
+        data: [stinkLst[7].points],
+        backgroundColor: [dynamiColor],
+        borderColor: [dynamiColor],
+      };
+      
+      //{...exampleState,  masterField:{new value}
+      updateDoughnutData({
+        labels: [...data.labels, labelsAnimes],
+        datasets: [
+          {
+            label: data.datasets[0].label,
+            data: [...data.datasets[0].data, datasetAnimes.data[0]],
+            backgroundColor: [
+              ...data.datasets[0].backgroundColor,
+              ...datasetAnimes.backgroundColor,
+            ],
+            borderColor: [
+              ...data.datasets[0].borderColor,
+              ...datasetAnimes.borderColor,
+            ],
+          },
+        ],
+      });
     }
   }
 
   return (
     <>
       <Animes addAnime={onAddAnime} />
-      <Doughnutchart></Doughnutchart>
+      <Doughnutchart data={data}></Doughnutchart>
       <br />
       <UserAnimes anime_list={anime_list}></UserAnimes>
     </>
-  );
-}
-
-export function Doughnutchart() {
-  //Data that will be used in the doughnutChart
-  //Will need to be changed based on UserAnimes list
-
-  const data = {
-    labels: ["Yes", "No"],
-    datasets: [
-      {
-        label: "Poll",
-        data: [3, 6],
-        backgroundColor: ["black", "red"],
-        borderColor: ["black", "red"],
-      },
-    ],
-  };
-
-  const options = {};
-  return (
-    <div style={{ width: "50%", height: "50%" }}>
-      <Doughnut data={data} options={options}></Doughnut>
-    </div>
   );
 }
 
@@ -428,5 +468,17 @@ export function UserAnimes({ anime_list }) {
         })}
       </ul>
     </>
+  );
+}
+
+function Doughnutchart({ data }) {
+  //Data that will be used in the doughnutChart
+  //Will need to be changed based on UserAnimes list
+
+  const options = {};
+  return (
+    <div style={{ width: "50%", height: "50%" }}>
+      <Doughnut data={data} options={options}></Doughnut>
+    </div>
   );
 }
