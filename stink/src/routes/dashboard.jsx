@@ -373,7 +373,7 @@ export function Dashboard() {
     characters: ["", ""],
   };
 
-  console.log(computeStinkiness(testAnime));
+  //console.log(computeStinkiness(testAnime));
 
   function onAddAnime(anime) {
     const ids = anime_list.map((a) => a.id);
