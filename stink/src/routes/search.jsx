@@ -63,7 +63,7 @@ export function searchAnimesLoader({ request }) {
     });
 }
 
-function LoadingSign() {
+export function LoadingSign() {
   return <div className="loading"></div>;
 }
 

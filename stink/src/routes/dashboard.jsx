@@ -12,6 +12,7 @@ import {
 import { Anime } from "./anime";
 import { useEffect } from "react";
 import { Animes } from "./search";
+import { LoadingSign } from "./search";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -27,7 +28,7 @@ async function computeStinkiness(anime) {
   console.log(anime);
   console.log("title", anime.title);
   //BanWords points
-  console.log(JSON.stringify({ text: anime.title }))
+  console.log(JSON.stringify({ text: anime.title }));
   promiseList.push(
     fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
@@ -53,7 +54,10 @@ async function computeStinkiness(anime) {
   for (const rec of anime.recommendations) {
     concatenatedRecommendations += rec.text;
   }
-  console.log("rec text", JSON.stringify({ text: concatenatedRecommendations }));
+  console.log(
+    "rec text",
+    JSON.stringify({ text: concatenatedRecommendations })
+  );
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
     fetch("http://localhost:4200/purgoAnimeum", {
@@ -74,7 +78,7 @@ async function computeStinkiness(anime) {
       })
   );
 
-  console.log("desc", JSON.stringify({ text: anime.desc }), anime.desc, anime)
+  console.log("desc", JSON.stringify({ text: anime.desc }), anime.desc, anime);
   promiseList.push(
     fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
@@ -101,7 +105,7 @@ async function computeStinkiness(anime) {
     tagsNDesc += tag.name + " " + tag.desc;
   }
 
-  console.log("tags", JSON.stringify({ text: tagsNDesc }))
+  console.log("tags", JSON.stringify({ text: tagsNDesc }));
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
     fetch("http://localhost:4200/purgoAnimeum", {
@@ -122,7 +126,7 @@ async function computeStinkiness(anime) {
       })
   );
 
-  console.log("chars", JSON.stringify({ text: anime.characters.join() }))
+  console.log("chars", JSON.stringify({ text: anime.characters.join() }));
   promiseList.push(
     fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
@@ -225,6 +229,7 @@ export function Dashboard() {
       },
     ],
   });
+  const [isLoadingOrNot, updateIsLoadingOrNot] = useState(true);
 
   function dynamicColors() {
     let r = Math.floor(Math.random() * 255);
@@ -403,12 +408,11 @@ export function Dashboard() {
     const ids = anime_list.map((a) => a.id);
     if (!ids.includes(anime.id)) {
       // check if anime is already selected to avoid duplicates
+      updateIsLoadingOrNot(true);
       setAnime_list((prevArray) => [...prevArray, anime]);
 
       //Updating Doughnut
       const stinkLst = await computeStinkiness(anime);
-      //console.log("HERE (stinkLst)");
-      //console.log(stinkLst);
       /*
       Idées d'implémentations :
       - Classement de points par anime, on voit les détails de provenance des points quand on hover
@@ -430,7 +434,7 @@ export function Dashboard() {
         backgroundColor: [dynamiColor],
         borderColor: [dynamiColor],
       };
-      
+
       //{...exampleState,  masterField:{new value}
       updateDoughnutData({
         labels: [...data.labels, labelsAnimes],
@@ -449,27 +453,40 @@ export function Dashboard() {
           },
         ],
       });
+      updateIsLoadingOrNot(false);
     }
   }
 
-  if (anime_list.length === 0){
+  if (anime_list.length === 0) {
     return (
       <>
         <Animes addAnime={onAddAnime} />
+        {/*<LoadingSign></LoadingSign> loading ...*/}
         <br />
         <UserAnimes anime_list={anime_list}></UserAnimes>
       </>
     );
-  }
-  else {
-    return (
-      <>
-        <Animes addAnime={onAddAnime} />
-        <Doughnutchart data={data}></Doughnutchart>
-        <br />
-        <UserAnimes anime_list={anime_list}></UserAnimes>
-      </>
-    );
+  } else {
+    if (isLoadingOrNot) {
+      updateIsLoadingOrNot(false);
+      return (
+        <>
+          <Animes addAnime={onAddAnime} />
+          <LoadingSign></LoadingSign> loading ...
+          <br />
+          <UserAnimes anime_list={anime_list}></UserAnimes>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Animes addAnime={onAddAnime} />
+          <Doughnutchart data={data}></Doughnutchart>
+          <br />
+          <UserAnimes anime_list={anime_list}></UserAnimes>
+        </>
+      );
+    }
   }
 }
 
@@ -478,16 +495,28 @@ function UserAnimes({ anime_list }) {
   return (
     <>
       <h3>Selected animes</h3>
-      <ul>
+      {/*<nav>
+                    <ul>
+                    {drinks ? drinks.map((c) => <li key={c.idDrink}>
+                        <NavLinkWithQuery to={`${c.idDrink}`} className={({ isActive, isPending }) => isActive ? 'active' : isPending ? 'pending' : ''}>
+                            {c.strDrink}
+                        </NavLinkWithQuery>
+                    </li>) : <p>Aucun résultat</p>}
+                    </ul>
+                </nav>*/}
+      <nav><ul>
         {anime_list.map((anime) => {
-          return <><Anime key={anime.id} anime={anime}></Anime><br/></>;
+          return (
+            <li key={anime.id}>
+              <Anime anime={anime}></Anime>
+              <br />
+            </li>
+          );
         })}
-      </ul>
+      </ul></nav>
     </>
   );
 }
-
-
 
 function Doughnutchart({ data }) {
   //Data that will be used in the doughnutChart
