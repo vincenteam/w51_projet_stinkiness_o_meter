@@ -447,14 +447,25 @@ export function Dashboard() {
     }
   }
 
-  return (
-    <>
-      <Animes addAnime={onAddAnime} />
-      <Doughnutchart data={data}></Doughnutchart>
-      <br />
-      <UserAnimes anime_list={anime_list}></UserAnimes>
-    </>
-  );
+  if (anime_list.length === 0){
+    return (
+      <>
+        <Animes addAnime={onAddAnime} />
+        <br />
+        <UserAnimes anime_list={anime_list}></UserAnimes>
+      </>
+    );
+  }
+  else {
+    return (
+      <>
+        <Animes addAnime={onAddAnime} />
+        <Doughnutchart data={data}></Doughnutchart>
+        <br />
+        <UserAnimes anime_list={anime_list}></UserAnimes>
+      </>
+    );
+  }
 }
 
 export function UserAnimes({ anime_list }) {

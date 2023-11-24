@@ -167,7 +167,7 @@ console.log("param", loaded.search)
                 {animes.map((anime) => {
                   return (
                     <li key={anime.id}>
-                      <Anime anime={anime}></Anime>
+                      <Anime anime={anime}></Anime> {" "}
                       <button onClick={() => addAnime(anime)}>
                         add to list
                       </button>
