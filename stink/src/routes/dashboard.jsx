@@ -27,8 +27,9 @@ async function computeStinkiness(anime) {
   console.log(anime);
   console.log("title", anime.title);
   //BanWords points
+  console.log(JSON.stringify({ text: anime.title }))
   promiseList.push(
-    fetch("http://localhost:4200/purgoAnimeum?search=", {
+    fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -52,10 +53,10 @@ async function computeStinkiness(anime) {
   for (const rec of anime.recommendations) {
     concatenatedRecommendations += rec.text;
   }
-  console.log("rec text", concatenatedRecommendations);
+  console.log("rec text", JSON.stringify({ text: concatenatedRecommendations }));
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
-    fetch("http://localhost:4200/purgoAnimeum?search=", {
+    fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,8 +74,9 @@ async function computeStinkiness(anime) {
       })
   );
 
+  console.log("desc", JSON.stringify({ text: anime.desc }), anime.desc, anime)
   promiseList.push(
-    fetch("http://localhost:4200/purgoAnimeum?search=", {
+    fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -99,9 +101,10 @@ async function computeStinkiness(anime) {
     tagsNDesc += tag.name + " " + tag.desc;
   }
 
+  console.log("tags", JSON.stringify({ text: tagsNDesc }))
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
-    fetch("http://localhost:4200/purgoAnimeum?search=", {
+    fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -118,8 +121,10 @@ async function computeStinkiness(anime) {
         return { id: "4", points: tagsBans };
       })
   );
+
+  console.log("chars", JSON.stringify({ text: anime.characters.join() }))
   promiseList.push(
-    fetch("http://localhost:4200/purgoAnimeum?search=", {
+    fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

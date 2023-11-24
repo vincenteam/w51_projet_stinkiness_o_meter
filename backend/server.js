@@ -56,33 +56,38 @@ app.get("/testBackend", (req, res, next) => {
 
 app.post("/purgoAnimeum", (req, res, next) => {
   const replacement_char = "*";
-  console.log(req.body);
-  const full_text = req.body.text.replaceAll(replacement_char, "_"); // to  avoid counting a star as a banword
-  let texts = full_text.match(/.{1,1500}/g); // to stay under 2048 char url
+  if (req.body.text === "") {
+    res.json({count : 0})
+  }else{
 
-  //console.log(texts);
+    console.log("req", req.body);
+    const full_text = req.body.text.replaceAll(replacement_char, "_"); // to  avoid counting a star as a banword
+    let texts = full_text.match(/.{1,1500}/g); // to stay under 2048 char url
 
-  const fetches = [];
+    //console.log(texts);
 
-  for (const text of texts) {
-    for (let words of ban_words) {
-      const url = `https://www.purgomalum.com/service/json?text=${text}&add=${words}&fill_text=*`;
-      //console.log(url);
-      fetches.push(fetch(url));
-    }
-  }
+    const fetches = [];
 
-  let ban_word_count = 0;
-
-  Promise.all(fetches).then((responses) => {
-    Promise.all(responses.map((response) => response.json())).then((data) => {
-      for (const censored of data) {
-        ban_word_count += censored.result.split(replacement_char).length - 1;
+    for (const text of texts) {
+      for (let words of ban_words) {
+        const url = `https://www.purgomalum.com/service/json?text=${text}&add=${words}&fill_text=*`;
+        //console.log(url);
+        fetches.push(fetch(url));
       }
-      console.log(ban_word_count)
-      res.json({ count: ban_word_count });
+    }
+
+    let ban_word_count = 0;
+
+    Promise.all(fetches).then((responses) => {
+      Promise.all(responses.map((response) => response.json())).then((data) => {
+        for (const censored of data) {
+          ban_word_count += censored.result.split(replacement_char).length - 1;
+        }
+        console.log(ban_word_count);
+        res.json({ count: ban_word_count });
+      });
     });
-  });
+  }
 });
 
 app.get("/searchAniIds", (req, res, next) => {
@@ -180,7 +185,7 @@ app.get("/animeInfo", (req, res, next) => {
             if (info.description) {
               info_formatted.desc = info.description[0];
             } else {
-              info_formatted.des = "";
+              info_formatted.desc = "";
             }
             if (info.picture) {
               info_formatted.picture = info.picture[0];
