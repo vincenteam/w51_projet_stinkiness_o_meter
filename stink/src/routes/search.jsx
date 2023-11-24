@@ -1,4 +1,10 @@
-import { Form, Outlet, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
+import {
+  Form,
+  Outlet,
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+} from "react-router-dom";
 import { useEffect, useState } from "react";
 import { parseString } from "xml2js";
 import { Anime } from "./anime.jsx";
@@ -67,7 +73,7 @@ export function Animes({ addAnime }) {
   const [animes, setAnimes] = useState([]);
   const [canRequest, setCanRequest] = useState(true);
   const { state } = useNavigation();
-  console.log(state, loaded, animes, idsToLoad)
+
   let requestTimeOut = 10; // timeout of requests to backend
   const loadGroupSize = 10;
 
@@ -81,7 +87,7 @@ export function Animes({ addAnime }) {
 
   function loadAnimeInfo(baseAnime, idsList) {
     // create promises to get info on the animes based on ids on the state
-    console.log("loaded", animes.length);
+
     if (!canRequest) {
       console.log("in timeout");
       return null;
@@ -99,8 +105,6 @@ export function Animes({ addAnime }) {
           })
       );
     }
-
-    console.log("promises", promiseList);
 
     if (promiseList.length !== 0) {
       Promise.all(promiseList).then((aniData) => {
@@ -132,6 +136,7 @@ export function Animes({ addAnime }) {
     if (loaded.ids) {
       console.log("ids change", loaded.ids);
       // remove ids that will be loaded from the state
+      setAnimes([])
       setIdsToLoad(loaded.ids.slice(loadGroupSize));
       loadAnimeInfo([], loaded.ids.slice(0, loadGroupSize));
     }
@@ -142,7 +147,7 @@ export function Animes({ addAnime }) {
       setCanRequest(true);
     }, 1000 * requestTimeOut);
   }, []);
-console.log("param", loaded.search)
+  
   return (
     <>
       <div id="sidebar">
@@ -156,12 +161,13 @@ console.log("param", loaded.search)
             value={useEffect(() => {
               document.getElementById("search").value = loaded.search;
             }, [loaded.search])}
-            
           />{" "}
-          <button type="submit" disabled={state === "loading" ? true : false}>Search</button>
+          <button type="submit" disabled={state === "loading" ? true : false}>
+            Search
+          </button>
         </Form>
         {loaded.search !== null ? (
-          loaded.ids.length !== 0 || animes.length !== 0? ( (
+          loaded.ids.length !== 0 || animes.length !== 0 ? (
             <nav>
               <ul className="search_results" onScroll={checkScroll}>
                 {animes.map((anime) => {
@@ -174,7 +180,7 @@ console.log("param", loaded.search)
                     </li>
                   );
                 })}
-                { animes.length === 0 ? (
+                {animes.length === 0 || idsToLoad.length !== 0 ? (
                   <li>
                     <LoadingSign></LoadingSign> loading ...
                   </li>
@@ -183,7 +189,7 @@ console.log("param", loaded.search)
                 )}
               </ul>
             </nav>
-          )) : (
+          ) : (
             <div>no results</div>
           )
         ) : (

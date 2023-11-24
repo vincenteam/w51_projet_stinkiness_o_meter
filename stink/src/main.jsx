@@ -16,6 +16,7 @@ import Root from "./routes/root";
 import { Animes, searchAnimesLoader } from "./routes/search";
 import Error from "./error";
 import { Dashboard, dashboardLoader } from "./routes/dashboard";
+import { AnimeDetails, AnimeDetailsLoader} from "./routes/animeDetails"
 
 const router = createBrowserRouter(
   [
@@ -29,6 +30,12 @@ const router = createBrowserRouter(
           element : <Dashboard/>,
           errorElement: <Error />,
         },
+        {
+          path: "animeDetails",
+          loader: AnimeDetailsLoader,
+          element: <AnimeDetails/>,
+          errorElement: <Error />,
+        }
       ],
     },
     {
