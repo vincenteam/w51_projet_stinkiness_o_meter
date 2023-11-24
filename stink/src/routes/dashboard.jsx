@@ -468,19 +468,21 @@ export function Dashboard() {
   }
 }
 
-export function UserAnimes({ anime_list }) {
+function UserAnimes({ anime_list }) {
   console.log("anime_list in user", anime_list);
   return (
     <>
       <h3>Selected animes</h3>
       <ul>
         {anime_list.map((anime) => {
-          return <Anime key={anime.id} anime={anime}></Anime>;
+          return <><Anime key={anime.id} anime={anime}></Anime><br/></>;
         })}
       </ul>
     </>
   );
 }
+
+
 
 function Doughnutchart({ data }) {
   //Data that will be used in the doughnutChart
