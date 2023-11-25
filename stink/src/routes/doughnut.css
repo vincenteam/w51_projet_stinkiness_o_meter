@@ -1,0 +1,12 @@
+.doughnut_chart {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .score {
+    position: absolute;
+    padding: 20px;
+    text-align: center;
+  }
