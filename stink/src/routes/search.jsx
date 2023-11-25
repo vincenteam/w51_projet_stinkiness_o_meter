@@ -125,7 +125,6 @@ export function Animes({ addAnime }) {
               tmp.push(a);
             }
           }
-          console.log("set with", tmp);
           return tmp;
         });
       });
@@ -134,7 +133,6 @@ export function Animes({ addAnime }) {
 
   useEffect(() => {
     if (loaded.ids) {
-      console.log("ids change", loaded.ids);
       // remove ids that will be loaded from the state
       setAnimes([])
       setIdsToLoad(loaded.ids.slice(loadGroupSize));

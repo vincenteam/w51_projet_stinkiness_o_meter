@@ -16,19 +16,12 @@ import { LoadingSign } from "./search";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
-export function dashboardLoader({ request }) {
-  console.log("dashboard loader", request);
-
-  return { title: "haaaaaaaaaaaa" };
-}
+export function dashboardLoader({ request }) {}
 
 //returns a list of { id, points }, with the id 0 being the total score and the ids 1 to 7 the different parts of the score
 async function computeStinkiness(anime) {
   let promiseList = [];
-  console.log(anime);
-  console.log("title", anime.title);
   //BanWords points
-  console.log(JSON.stringify({ text: anime.title }));
   promiseList.push(
     fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
@@ -55,17 +48,29 @@ async function computeStinkiness(anime) {
       concatenatedRecommendations += rec.text;
     }
 
-    let recommendationsTexts = concatenatedRecommendations.match(/.{1,1500}/g);
+  for (const rec of anime.recommendations) {
+    concatenatedRecommendations += rec.text;
+  }
 
-    for (const element of recommendationsTexts){
-      promiseList.push(
-        fetch("http://localhost:4200/purgoAnimeum", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // You can add other headers as needed
-          },
-          body: JSON.stringify({ text: element }),
+  /*console.log(
+    "rec text",
+    JSON.stringify({ text: concatenatedRecommendations })
+  );*/
+
+  let recommendationsTexts = concatenatedRecommendations.match(/.{1,1500}/g);
+
+  for (const element of recommendationsTexts) {
+    promiseList.push(
+      fetch("http://localhost:4200/purgoAnimeum", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // You can add other headers as needed
+        },
+        body: JSON.stringify({ text: element }),
+      })
+        .then((res) => {
+          return res.json();
         })
           .then((res) => {
             return res.json();
@@ -79,7 +84,6 @@ async function computeStinkiness(anime) {
     }
   }
 
-  console.log("desc", JSON.stringify({ text: anime.desc }), anime.desc, anime);
   promiseList.push(
     fetch("http://localhost:4200/purgoAnimeum", {
       method: "POST",
@@ -93,7 +97,6 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log(response);
         console.log("Desc = " + response.count * 2);
         const descBans = response.count * 2;
         return { id: "3", points: descBans };
@@ -106,7 +109,6 @@ async function computeStinkiness(anime) {
     tagsNDesc += tag.name + " " + tag.desc;
   }
 
-  console.log("tags", JSON.stringify({ text: tagsNDesc }));
   promiseList.push(
     //Ne va peut-être pas marcher (liste d'objets js)
     fetch("http://localhost:4200/purgoAnimeum", {
@@ -127,19 +129,20 @@ async function computeStinkiness(anime) {
       })
   );
 
+  let characterTexts = anime.characters.join().match(/.{1,1500}/g);
 
-  if (anime.characters !== []){
-    let characterTexts = anime.characters.join().match(/.{1,1500}/g);
-
-    for (const element of characterTexts){
-      promiseList.push(
-        fetch("http://localhost:4200/purgoAnimeum", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            // You can add other headers as needed
-          },
-          body: JSON.stringify({ text: element }),
+  for (const element of characterTexts) {
+    promiseList.push(
+      fetch("http://localhost:4200/purgoAnimeum", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // You can add other headers as needed
+        },
+        body: JSON.stringify({ text: element }),
+      })
+        .then((res) => {
+          return res.json();
         })
           .then((res) => {
             return res.json();
@@ -151,7 +154,6 @@ async function computeStinkiness(anime) {
           })
       );
     }
-  }
 
   //Recommendations points
   //Points on number of recommendations
@@ -183,7 +185,6 @@ async function computeStinkiness(anime) {
       "\nNumber of must watch : " +
       mustWatchCount
   );
-  
 
   if (forFansCount > recommendedCount) {
     recommendationsPoints += 5;
@@ -213,6 +214,7 @@ async function computeStinkiness(anime) {
   stinkList.push({ id: "6", points: episodeCountPoints });
   stinkList.push({ id: "7", points: recommendationsPoints });
 
+
   let stinkiness = 0;
   for (const element of stinkList) {
     stinkiness += element.points;
@@ -220,7 +222,7 @@ async function computeStinkiness(anime) {
   stinkList.push({ id: "0", points: stinkiness });
 
   let returnLst = [{ id: "0", points: stinkiness }];
-  for (const element of stinkList){
+  for (const element of stinkList) {
     returnLst.push(element);
   }
   //console.log(returnLst);
@@ -252,16 +254,18 @@ export function Dashboard() {
 
   //console.log(computeStinkiness(testAnime));
 
-  async function onAddAnime(anime) {
+  function onAddAnime(anime) {
+    console.log("add anime");
     const ids = anime_list.map((a) => a.id);
+    console.log("existing ids", anime_list);
     if (!ids.includes(anime.id)) {
       // check if anime is already selected to avoid duplicates
       updateIsLoadingOrNot(true);
       setAnime_list((prevArray) => [...prevArray, anime]);
 
       //Updating Doughnut
-      const stinkLst = await computeStinkiness(anime);
-      /*
+      computeStinkiness(anime).then((stinkLst) => {
+        /*
       Idées d'implémentations :
       - Classement de points par anime, on voit les détails de provenance des points quand on hover
       - Classement de points par origine (genre tags ou desc) et on voit quels animes donnent tant de points quand on hover
@@ -274,34 +278,37 @@ export function Dashboard() {
       0:stinkiness 1:name 2:recommendations(text) 3:desc 4:tags 5:characters 6:recommendations(ranks) 7:nbEpisodes
       */
 
-      const dynamiColor = dynamicColors();
-      let labelsAnimes = [anime.title];
-      let datasetAnimes = {
-        label: "Animes",
-        data: [stinkLst[0].points],
-        backgroundColor: [dynamiColor],
-        borderColor: [dynamiColor],
-      };
+        const dynamiColor = dynamicColors();
+        let labelsAnimes = [anime.title];
+        let datasetAnimes = {
+          label: "Animes",
+          data: [stinkLst[0].points],
+          backgroundColor: [dynamiColor],
+          borderColor: [dynamiColor],
+        };
 
-      //{...exampleState,  masterField:{new value}
-      updateDoughnutData({
-        labels: [...data.labels, labelsAnimes],
-        datasets: [
-          {
-            label: data.datasets[0].label,
-            data: [...data.datasets[0].data, datasetAnimes.data[0]],
-            backgroundColor: [
-              ...data.datasets[0].backgroundColor,
-              ...datasetAnimes.backgroundColor,
-            ],
-            borderColor: [
-              ...data.datasets[0].borderColor,
-              ...datasetAnimes.borderColor,
-            ],
-          },
-        ],
+        console.log("donut data", data);
+
+        //{...exampleState,  masterField:{new value}
+        updateDoughnutData({
+          labels: [...data.labels, labelsAnimes],
+          datasets: [
+            {
+              label: data.datasets[0].label,
+              data: [...data.datasets[0].data, datasetAnimes.data[0]],
+              backgroundColor: [
+                ...data.datasets[0].backgroundColor,
+                ...datasetAnimes.backgroundColor,
+              ],
+              borderColor: [
+                ...data.datasets[0].borderColor,
+                ...datasetAnimes.borderColor,
+              ],
+            },
+          ],
+        });
+        updateIsLoadingOrNot(false);
       });
-      updateIsLoadingOrNot(false);
     }
   }
 
@@ -341,19 +348,21 @@ export function Dashboard() {
 function UserAnimes({ anime_list }) {
   console.log("anime_list in user", anime_list);
   return (
-    <>
+    <div>
       <h3>Selected animes</h3>
-      <nav><ul>
-        {anime_list.map((anime) => {
-          return (
-            <li key={anime.id}>
-              <Anime anime={anime}></Anime>
-              <br />
-            </li>
-          );
-        })}
-      </ul></nav>
-    </>
+      <nav>
+        <ul>
+          {anime_list.map((anime) => {
+            return (
+              <li key={anime.id}>
+                <Anime anime={anime}></Anime>
+                <br />
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+    </div>
   );
 }
 
