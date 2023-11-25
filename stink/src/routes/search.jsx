@@ -29,37 +29,6 @@ export function searchAnimesLoader({ request }) {
     })
     .then((animeIds) => {
       return { ids: animeIds.ids, search: searchTerm };
-      // Fetch-ception to get the other infos on the animes that match the searchTerm
-      if (animeIds.length === 0) {
-        // If the list of ids is empty, return an empty list
-        return { animes: [], search: searchTerm };
-      } else {
-        // If not, then ask the backend for the full anime data
-        let animeList = [];
-        let promiseList = [];
-        for (let id of animeIds.ids) {
-          promiseList.push(
-            fetch("http://localhost:4200/animeInfo?id=" + id)
-              .then((data) => {
-                return data.json();
-              })
-              .catch(function (err) {
-                return null;
-              })
-          );
-        }
-        return Promise.all(promiseList).then((aniData) => {
-          console.log(aniData);
-          console.log("recommandations : ");
-          console.log(aniData[0].recommendations);
-          for (let anime of aniData) {
-            if (anime) {
-              animeList.push(anime);
-            }
-          }
-          return { animes: animeList, search: searchTerm };
-        });
-      }
     });
 }
 

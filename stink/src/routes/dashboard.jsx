@@ -50,7 +50,7 @@ async function computeStinkiness(anime) {
 
   //Concatener toutes les valeurs en une string pour ne pas avoir de problèmes d'objets
   let concatenatedRecommendations = "";
-  if (anime.recommendations !== []){
+  if (anime.recommendations.length !== 0){
     for (const rec of anime.recommendations) {
       concatenatedRecommendations += rec.text;
     }
@@ -128,7 +128,7 @@ async function computeStinkiness(anime) {
   );
 
 
-  if (anime.characters !== []){
+  if (anime.characters.length !== 0){
     let characterTexts = anime.characters.join().match(/.{1,1500}/g);
 
     for (const element of characterTexts){
