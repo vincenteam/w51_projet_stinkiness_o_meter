@@ -4,6 +4,7 @@ import {
   useLoaderData,
   useNavigate,
   useNavigation,
+  Link,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { parseString } from "xml2js";
@@ -103,7 +104,7 @@ export function Animes({ addAnime }) {
   useEffect(() => {
     if (loaded.ids) {
       // remove ids that will be loaded from the state
-      setAnimes([])
+      setAnimes([]);
       setIdsToLoad(loaded.ids.slice(loadGroupSize));
       loadAnimeInfo([], loaded.ids.slice(0, loadGroupSize));
     }
@@ -114,7 +115,7 @@ export function Animes({ addAnime }) {
       setCanRequest(true);
     }, 1000 * requestTimeOut);
   }, []);
-  
+
   return (
     <>
       <div id="sidebar">
@@ -140,7 +141,10 @@ export function Animes({ addAnime }) {
                 {animes.map((anime) => {
                   return (
                     <li key={anime.id}>
-                      <Anime anime={anime}></Anime> {" "}
+                      <Link to={"/animeDetails?id=" + anime.id}>
+                        <Anime anime={anime}></Anime>
+                      </Link>
+                      {" "}
                       <button onClick={() => addAnime(anime)}>
                         add to list
                       </button>
