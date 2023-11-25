@@ -395,8 +395,8 @@ function StinkinessScore({ score }) {
   ];
 
   return (
-    <div className="score">
-      <div key="score">{score}</div>
+    <div className="score_container">
+      <div key="score" className="score">{score}</div>
       <div key="message">
         {elements.map((elem, ind) => {
           if (score >= elem[0] && (score < elem[1] || elem[1] == -1)) {
