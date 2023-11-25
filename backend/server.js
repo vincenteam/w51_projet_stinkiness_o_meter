@@ -212,6 +212,8 @@ app.get("/animeInfo", (req, res, next) => {
               }
             }
 
+            info_formatted.startdate = info.startdate
+
             anime_info_cache[id] = info_formatted;
 
             res.json(info_formatted);
