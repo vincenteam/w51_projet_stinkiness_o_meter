@@ -5,7 +5,6 @@ const tags_color = {};
 
 export function AnimeDetailsLoader({ request }) {
   const url = new URL(request.url);
-  console.log("req", request);
   if (url.searchParams.get("id") === null) {
     console.log("redirect");
     return redirect("/");
