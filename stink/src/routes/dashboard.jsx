@@ -43,14 +43,24 @@ async function computeStinkiness(anime) {
 
   //Concatener toutes les valeurs en une string pour ne pas avoir de problèmes d'objets
   let concatenatedRecommendations = "";
-  if (anime.recommendations.length !== 0){
+
+  if (anime.recommendations.length !== 0) {
     for (const rec of anime.recommendations) {
       concatenatedRecommendations += rec.text;
     }
 
+    for (const rec of anime.recommendations) {
+      concatenatedRecommendations += rec.text;
+    }
+
+    /*console.log(
+    "rec text",
+    JSON.stringify({ text: concatenatedRecommendations })
+  );*/
+
     let recommendationsTexts = concatenatedRecommendations.match(/.{1,1500}/g);
 
-    for (const element of recommendationsTexts){
+    for (const element of recommendationsTexts) {
       promiseList.push(
         fetch("http://localhost:4200/purgoAnimeum", {
           method: "POST",
@@ -117,11 +127,10 @@ async function computeStinkiness(anime) {
       })
   );
 
-
-  if (anime.characters.length !== 0){
+  if (anime.characters.length !== 0) {
     let characterTexts = anime.characters.join().match(/.{1,1500}/g);
 
-    for (const element of characterTexts){
+    for (const element of characterTexts) {
       promiseList.push(
         fetch("http://localhost:4200/purgoAnimeum", {
           method: "POST",
@@ -277,22 +286,24 @@ export function Dashboard() {
         console.log("donut data", data);
 
         //{...exampleState,  masterField:{new value}
-        updateDoughnutData({
-          labels: [...data.labels, labelsAnimes],
-          datasets: [
-            {
-              label: data.datasets[0].label,
-              data: [...data.datasets[0].data, datasetAnimes.data[0]],
-              backgroundColor: [
-                ...data.datasets[0].backgroundColor,
-                ...datasetAnimes.backgroundColor,
-              ],
-              borderColor: [
-                ...data.datasets[0].borderColor,
-                ...datasetAnimes.borderColor,
-              ],
-            },
-          ],
+        updateDoughnutData((previous) => {
+          return {
+            labels: [...previous.labels, labelsAnimes],
+            datasets: [
+              {
+                label: previous.datasets[0].label,
+                data: [...previous.datasets[0].data, datasetAnimes.data[0]],
+                backgroundColor: [
+                  ...previous.datasets[0].backgroundColor,
+                  ...datasetAnimes.backgroundColor,
+                ],
+                borderColor: [
+                  ...previous.datasets[0].borderColor,
+                  ...datasetAnimes.borderColor,
+                ],
+              },
+            ],
+          };
         });
         updateIsLoadingOrNot(false);
       });
