@@ -239,7 +239,7 @@ export function Dashboard() {
       },
     ],
   });
-  const [isLoadingOrNot, updateIsLoadingOrNot] = useState(true);
+  const [loadingCount, setLoadingCount] = useState(0);
 
   function dynamicColors() {
     let r = Math.floor(Math.random() * 255);
@@ -256,7 +256,9 @@ export function Dashboard() {
     console.log("existing ids", anime_list);
     if (!ids.includes(anime.id)) {
       // check if anime is already selected to avoid duplicates
-      updateIsLoadingOrNot(true);
+      setLoadingCount((previous) => {
+        return previous + 1;
+      });
       setAnime_list((prevArray) => [...prevArray, anime]);
 
       //Updating Doughnut
@@ -305,7 +307,9 @@ export function Dashboard() {
             ],
           };
         });
-        updateIsLoadingOrNot(false);
+        setLoadingCount((previous) => {
+          return previous - 1;
+        });
       });
     }
   }
@@ -320,8 +324,8 @@ export function Dashboard() {
       </>
     );
   } else {
-    if (isLoadingOrNot) {
-      updateIsLoadingOrNot(false);
+    console.log("loading ?", loadingCount);
+    if (loadingCount !== 0) {
       return (
         <>
           <Animes addAnime={onAddAnime} />
