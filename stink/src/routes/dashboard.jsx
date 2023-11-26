@@ -130,6 +130,8 @@ async function computeStinkiness(anime) {
 
   if (anime.characters.length !== 0) {
     let characterTexts = anime.characters.join().match(/.{1,1500}/g);
+    characterTexts = characterTexts ? characterTexts : ""
+    console.log("char tet", characterTexts)
 
     for (const element of characterTexts) {
       promiseList.push(
@@ -323,16 +325,16 @@ export function Dashboard() {
       </>
     );
   } else {*/
-    console.log("loading ?", loadingCount);
-    return (
-      <div className="dashboard">
-        <Doughnutchart data={data} loading={loadingCount !== 0}></Doughnutchart>
-        <div className="user_data">
-          <Animes addAnime={onAddAnime} />
-          <UserAnimes anime_list={anime_list}></UserAnimes>
-        </div>
+  console.log("loading ?", loadingCount);
+  return (
+    <div className="dashboard">
+      <Doughnutchart data={data} loading={loadingCount !== 0}></Doughnutchart>
+      <div className="user_data">
+        <Animes addAnime={onAddAnime} />
+        <UserAnimes anime_list={anime_list}></UserAnimes>
       </div>
-    );
+    </div>
+  );
   //}
 }
 
