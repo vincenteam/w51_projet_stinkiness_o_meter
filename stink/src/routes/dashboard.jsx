@@ -5,7 +5,8 @@ import { Anime } from "./anime";
 import { Animes } from "./search";
 import { LoadingSign } from "./search";
 import { Link } from "react-router-dom";
-
+import "./doughnut.css";
+import "./dashboard.css";
 Chart.register(ArcElement, Tooltip, Legend);
 
 export function dashboardLoader({ request }) {}
@@ -117,6 +118,8 @@ async function computeStinkiness(anime) {
 
   if (anime.characters.length !== 0) {
     let characterTexts = anime.characters.join().match(/.{1,1500}/g);
+    characterTexts = characterTexts ? characterTexts : ""
+    console.log("char tet", characterTexts)
 
     for (const element of characterTexts) {
       promiseList.push(
@@ -348,49 +351,30 @@ export function Dashboard() {
     })
   }
 
-  if (anime_list.length === 0) {
+  /*if (anime_list.length === 0) {
     return (
       <>
         <Animes addAnime={onAddAnime} />
-        <br />
-        <UserAnimes
-          anime_list={anime_list}
-          handleDelete={handleDelete}
-        ></UserAnimes>
+        <UserAnimes anime_list={anime_list}></UserAnimes>
       </>
     );
-  } else {
-    if (loadingCount !== 0) {
-      return (
-        <>
-          <Animes addAnime={onAddAnime} />
-          <LoadingSign></LoadingSign> loading ...
-          <br />
-          <UserAnimes
-            anime_list={anime_list}
-            handleDelete={handleDelete}
-          ></UserAnimes>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <Animes addAnime={onAddAnime} />
-          <Doughnutchart data={data}></Doughnutchart>
-          <br />
-          <UserAnimes
-            anime_list={anime_list}
-            handleDelete={handleDelete}
-          ></UserAnimes>
-        </>
-      );
-    }
-  }
+  } else {*/
+  console.log("loading ?", loadingCount);
+  return (
+    <div className="dashboard">
+      <Doughnutchart data={data} loading={loadingCount !== 0}></Doughnutchart>
+      <div className="user_data">
+        <Animes addAnime={onAddAnime} />
+        <UserAnimes anime_list={anime_list} handleDelete={handleDelete}></UserAnimes>
+      </div>
+    </div>
+  );
+  //}
 }
 
 function UserAnimes({ anime_list, handleDelete }) {
   return (
-    <div>
+    <div className="anime_search">
       <h3>Selected animes</h3>
       <nav>
         <ul>
@@ -415,14 +399,52 @@ function UserAnimes({ anime_list, handleDelete }) {
   );
 }
 
-function Doughnutchart({ data }) {
+function Doughnutchart({ data, loading }) {
   //Data that will be used in the doughnutChart
   //Will need to be changed based on UserAnimes list
 
   const options = {};
   return (
-    <div style={{ width: "50%", height: "50%" }}>
-      <Doughnut data={data} options={options}></Doughnut>
+    <div className="doughnut_chart">
+      {loading ? (
+        <div>
+          <LoadingSign></LoadingSign> computing stinkiness ...
+        </div>
+      ) : (
+        <>
+          <Doughnut data={data} options={options}></Doughnut>
+          <StinkinessScore
+            score={data.datasets[0].data.reduce((acc, current) => {
+              return acc + current;
+            }, 0)}
+          />
+        </>
+      )}
+    </div>
+  );
+}
+
+function StinkinessScore({ score }) {
+  const elements = [
+    [0, 20, <>You Smell Good</>],
+    [20, 50, <>A little smelly</>],
+    [50, 100, <></>],
+    [100, 150, <>You are more a fart smella than a smart fella</>],
+    [150, -1, <>(つ✧ω✧)つ TAKE A BATH(*≧ω≦)</>],
+  ];
+
+  return (
+    <div className="score_container">
+      <div key="score" className="score">
+        {score}
+      </div>
+      <div key="message">
+        {elements.map((elem, ind) => {
+          if (score >= elem[0] && (score < elem[1] || elem[1] == -1)) {
+            return <div key={ind}>{elem[2]}</div>;
+          }
+        })}
+      </div>
     </div>
   );
 }

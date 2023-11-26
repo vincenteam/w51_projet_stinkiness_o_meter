@@ -1,0 +1,16 @@
+.doughnut_chart {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .score_container {
+    position: absolute;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .score{
+    font-size: 2em;
+  }

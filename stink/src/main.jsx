@@ -35,7 +35,12 @@ const router = createBrowserRouter(
           loader: AnimeDetailsLoader,
           element: <AnimeDetails/>,
           errorElement: <Error />,
-        }
+        },
+        {
+          path: "*",
+          element: <>404</>,
+          errorElement: <Error />,
+        },
       ],
     },
     {

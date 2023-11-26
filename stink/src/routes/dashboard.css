@@ -1,0 +1,13 @@
+.dashboard {
+  display: flex;
+}
+
+.doughnut_chart {
+  width: 50%;
+}
+
+.user_data {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}

@@ -114,7 +114,7 @@ export function Animes({ addAnime }) {
 
   return (
     <>
-      <div id="sidebar">
+      <div id="search">
         <Form>
           {" "}
           <input
