@@ -426,11 +426,11 @@ function Doughnutchart({ data, loading }) {
 
 function StinkinessScore({ score }) {
   const elements = [
-    [0, 20, <>You Smell Good</>],
-    [20, 50, <>A little smelly</>],
-    [50, 100, <></>],
-    [100, 150, <>You are more a fart smella than a smart fella</>],
-    [150, -1, <>(つ✧ω✧)つ TAKE A BATH(*≧ω≦)</>],
+    [0, 40, <>You Smell Good</>],
+    [40, 75, <>Neither smart fella nor fart smella</>],
+    [75, 150, <>A little bit smelly</>],
+    [150, 200, <>You are more of a fart smella than a smart fella</>],
+    [200, -1, <>(つ✧ω✧)つ YOU SHOULD TAKE A BATH NOW (*≧ω≦)</>],
   ];
 
   return (
