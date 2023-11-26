@@ -1,0 +1,43 @@
+header {
+  background-color: #4caf50;
+  color: white;
+}
+
+header div:hover {
+    cursor: pointer;
+}
+
+.logo {
+  display: inline-block;
+  vertical-align: middle;
+  width: 100px;
+  height: 100%;
+  margin-right: 2%;
+}
+
+h1 {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 24px;
+}
+
+.presentation {
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  width: 100%;
+  position: relative;
+}
+
+@media screen and (max-height: 100vh) {
+    footer {
+        position: fixed;
+        bottom: 0;
+    }
+}
+
+main{
+    margin: 8% 5%;
+}

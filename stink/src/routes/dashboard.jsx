@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { Animes } from "./search";
 import { LoadingSign } from "./search";
 import "./doughnut.css";
+import "./dashboard.css";
 Chart.register(ArcElement, Tooltip, Legend);
 
 export function dashboardLoader({ request }) {}
@@ -314,43 +315,31 @@ export function Dashboard() {
     }
   }
 
-  if (anime_list.length === 0) {
+  /*if (anime_list.length === 0) {
     return (
       <>
         <Animes addAnime={onAddAnime} />
-        {/*<LoadingSign></LoadingSign> loading ...*/}
-        <br />
         <UserAnimes anime_list={anime_list}></UserAnimes>
       </>
     );
-  } else {
+  } else {*/
     console.log("loading ?", loadingCount);
-    if (loadingCount !== 0) {
-      return (
-        <>
+    return (
+      <div className="dashboard">
+        <Doughnutchart data={data} loading={loadingCount !== 0}></Doughnutchart>
+        <div className="user_data">
           <Animes addAnime={onAddAnime} />
-          <LoadingSign></LoadingSign> computing stinkiness ...
-          <br />
           <UserAnimes anime_list={anime_list}></UserAnimes>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <Animes addAnime={onAddAnime} />
-          <Doughnutchart data={data}></Doughnutchart>
-          <br />
-          <UserAnimes anime_list={anime_list}></UserAnimes>
-        </>
-      );
-    }
-  }
+        </div>
+      </div>
+    );
+  //}
 }
 
 function UserAnimes({ anime_list }) {
   console.log("anime_list in user", anime_list);
   return (
-    <div>
+    <div className="anime_search">
       <h3>Selected animes</h3>
       <nav>
         <ul>
@@ -368,19 +357,27 @@ function UserAnimes({ anime_list }) {
   );
 }
 
-function Doughnutchart({ data }) {
+function Doughnutchart({ data, loading }) {
   //Data that will be used in the doughnutChart
   //Will need to be changed based on UserAnimes list
 
   const options = {};
   return (
-    <div className="doughnut_chart" style={{ width: "50%", height: "50%" }}>
-      <Doughnut data={data} options={options}></Doughnut>
-      <StinkinessScore
-        score={data.datasets[0].data.reduce((acc, current) => {
-          return acc + current;
-        })}
-      />
+    <div className="doughnut_chart">
+      {loading ? (
+        <div>
+          <LoadingSign></LoadingSign> computing stinkiness ...
+        </div>
+      ) : (
+        <>
+          <Doughnut data={data} options={options}></Doughnut>
+          <StinkinessScore
+            score={data.datasets[0].data.reduce((acc, current) => {
+              return acc + current;
+            }, 0)}
+          />
+        </>
+      )}
     </div>
   );
 }
@@ -388,15 +385,17 @@ function Doughnutchart({ data }) {
 function StinkinessScore({ score }) {
   const elements = [
     [0, 20, <>You Smell Good</>],
-    [20, 50, <></>],
+    [20, 50, <>A little smelly</>],
     [50, 100, <></>],
     [100, 150, <>You are more a fart smella than a smart fella</>],
-    [150, -1, <>(つ✧ω✧)つ TAKE A BATH (つ✧ω✧)つ (*≧ω≦)</>],
+    [150, -1, <>(つ✧ω✧)つ TAKE A BATH(*≧ω≦)</>],
   ];
 
   return (
     <div className="score_container">
-      <div key="score" className="score">{score}</div>
+      <div key="score" className="score">
+        {score}
+      </div>
       <div key="message">
         {elements.map((elem, ind) => {
           if (score >= elem[0] && (score < elem[1] || elem[1] == -1)) {
