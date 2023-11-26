@@ -1,5 +1,6 @@
 import { useNavigate, redirect, useLoaderData, Link } from "react-router-dom";
 import "./anime_details.css";
+import {Error404} from "../error404"
 
 const tags_color = {};
 
@@ -14,22 +15,34 @@ export function AnimeDetailsLoader({ request }) {
 
   return fetch("http://localhost:4200/animeInfo?id=" + id)
     .then((data) => {
+      console.log("res", data);
+      if (data.status === 404) {
+        return { not_found: true };
+      }
       return data.json();
     })
     .then((json) => {
-      const promises = json.related.map((id) => {
-        return fetch("http://localhost:4200/animeInfo?id=" + id).then(
-          (data) => {
-            return data.json();
-          }
-        );
-      });
-
-      return Promise.all(promises).then((jsons_related) => {
-        const anime_data = json;
-        anime_data.related = jsons_related;
-        return anime_data;
-      });
+      if (!json.not_found) {
+        const promises = json.related.map((id) => {
+          return fetch("http://localhost:4200/animeInfo?id=" + id)
+            .then((data) => {
+              return data.json();
+            })
+            .catch((e) => {
+              console.log("error", e);
+            });
+        });
+        return Promise.all(promises).then((jsons_related) => {
+          const anime_data = json;
+          anime_data.related = jsons_related;
+          return anime_data;
+        });
+      }else{
+        return null;
+      }
+    })
+    .catch((e) => {
+      console.log("error", e);
     });
 }
 
@@ -44,7 +57,7 @@ export function AnimeDetails() {
   const loaded = useLoaderData();
   console.log("loaded", loaded);
 
-  return (
+  return loaded ? (
     <div className="details_container">
       <div key="main" className="details">
         <div key="title" className="title">
@@ -96,5 +109,5 @@ export function AnimeDetails() {
         </div>
       </div>
     </div>
-  );
+  ) : <Error404></Error404>
 }
