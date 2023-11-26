@@ -1,15 +1,11 @@
 import {
   Form,
-  Outlet,
   useLoaderData,
-  useNavigate,
   useNavigation,
   Link,
 } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { parseString } from "xml2js";
 import { Anime } from "./anime.jsx";
-import { LinkWithQuery } from "../linkWithQuery";
 
 import "./search.css";
 

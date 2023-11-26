@@ -1,18 +1,10 @@
 import { useState } from "react";
 import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
-import {
-  Form,
-  Link,
-  Outlet,
-  useLoaderData,
-  useLocation,
-  useParams,
-} from "react-router-dom";
 import { Anime } from "./anime";
-import { useEffect } from "react";
 import { Animes } from "./search";
 import { LoadingSign } from "./search";
+import { Link } from "react-router-dom";
 
 Chart.register(ArcElement, Tooltip, Legend);
 
@@ -35,8 +27,7 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Title = " + response.count * 5);
-        let nameBans = response.count * 5;
+        let nameBans = response.count * 15;
         return { id: "1", points: nameBans };
       })
   );
@@ -74,7 +65,6 @@ async function computeStinkiness(anime) {
             return res.json();
           })
           .then((response) => {
-            console.log("Recommendations = " + response.count * 2);
             let recommendationsBans = response.count * 2;
             return { id: "2", points: recommendationsBans };
           })
@@ -95,7 +85,6 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Desc = " + response.count * 2);
         const descBans = response.count * 2;
         return { id: "3", points: descBans };
       })
@@ -121,8 +110,7 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        console.log("Tags = " + response.count * 0.5);
-        let tagsBans = response.count * 0.5;
+        let tagsBans = response.count * 0.7;
         return { id: "4", points: tagsBans };
       })
   );
@@ -144,7 +132,6 @@ async function computeStinkiness(anime) {
             return res.json();
           })
           .then((response) => {
-            console.log("Characters = " + response.count * 3);
             let charactersBans = response.count * 3;
             return { id: "5", points: charactersBans };
           })
@@ -174,14 +161,14 @@ async function computeStinkiness(anime) {
       mustWatchCount++;
     }
   }
-  console.log(
+  /*console.log(
     "Number of for fans : " +
       forFansCount +
       "\nNumber of recommended : " +
       recommendedCount +
       "\nNumber of must watch : " +
       mustWatchCount
-  );
+  );*/
 
   if (forFansCount > recommendedCount) {
     recommendationsPoints += 5;
@@ -203,7 +190,6 @@ async function computeStinkiness(anime) {
 
   let stinkList = [];
   await Promise.all(promiseList).then((stinkLst) => {
-    console.log("lst", stinkList);
     for (const elem of stinkLst) {
       stinkList.push(elem);
     }
@@ -239,6 +225,7 @@ export function Dashboard() {
       },
     ],
   });
+
   const [loadingCount, setLoadingCount] = useState(0);
 
   function dynamicColors() {
@@ -251,9 +238,7 @@ export function Dashboard() {
   //console.log(computeStinkiness(testAnime));
 
   function onAddAnime(anime) {
-    console.log("add anime");
     const ids = anime_list.map((a) => a.id);
-    console.log("existing ids", anime_list);
     if (!ids.includes(anime.id)) {
       // check if anime is already selected to avoid duplicates
       setLoadingCount((previous) => {
@@ -285,12 +270,10 @@ export function Dashboard() {
           borderColor: [dynamiColor],
         };
 
-        console.log("donut data", data);
-
         //{...exampleState,  masterField:{new value}
         updateDoughnutData((previous) => {
           return {
-            labels: [...previous.labels, labelsAnimes],
+            labels: [...previous.labels, ...labelsAnimes],
             datasets: [
               {
                 label: previous.datasets[0].label,
@@ -314,24 +297,79 @@ export function Dashboard() {
     }
   }
 
+  function handleDelete(id, titleToRemove) {
+    //Update Doughnut data -> 
+    updateDoughnutData((previous) => {
+      let indexToDelete;
+      for (const index in previous.labels){
+        if (previous.labels[index] === titleToRemove){
+          indexToDelete = index;
+        }
+      }
+
+      const labelToRemove = previous.labels[indexToDelete];
+      const newBackgroundColor = [];
+      const newBorderColor = [];
+      for (const index in previous.datasets[0].backgroundColor){
+        if (index !== indexToDelete){
+          newBackgroundColor.push(previous.datasets[0].backgroundColor[index])
+          newBorderColor.push(previous.datasets[0].borderColor[index])
+        }
+      }
+
+      for (const element of previous.labels){
+        console.log(element);
+      }
+
+      return {
+        labels: previous.labels.filter(label => label !== labelToRemove),
+        datasets: [
+          {
+            label: previous.datasets[0].label,
+            data: previous.datasets[0].data.splice(indexToDelete, 1),
+            backgroundColor: newBackgroundColor,
+            borderColor: newBorderColor,
+          },
+        ],
+      };
+    });
+
+    console.log("updated doughnut data = " + data.datasets + " labels = " + data.labels);
+    
+    // Update userList data
+    setAnime_list(() => {
+      let newList = [];
+      for (const element of anime_list) {
+        if (element.id !== id) {
+          newList.push(element);
+        }
+      }
+      return newList;
+    })
+  }
+
   if (anime_list.length === 0) {
     return (
       <>
         <Animes addAnime={onAddAnime} />
-        {/*<LoadingSign></LoadingSign> loading ...*/}
         <br />
-        <UserAnimes anime_list={anime_list}></UserAnimes>
+        <UserAnimes
+          anime_list={anime_list}
+          handleDelete={handleDelete}
+        ></UserAnimes>
       </>
     );
   } else {
-    console.log("loading ?", loadingCount);
     if (loadingCount !== 0) {
       return (
         <>
           <Animes addAnime={onAddAnime} />
           <LoadingSign></LoadingSign> loading ...
           <br />
-          <UserAnimes anime_list={anime_list}></UserAnimes>
+          <UserAnimes
+            anime_list={anime_list}
+            handleDelete={handleDelete}
+          ></UserAnimes>
         </>
       );
     } else {
@@ -340,15 +378,17 @@ export function Dashboard() {
           <Animes addAnime={onAddAnime} />
           <Doughnutchart data={data}></Doughnutchart>
           <br />
-          <UserAnimes anime_list={anime_list}></UserAnimes>
+          <UserAnimes
+            anime_list={anime_list}
+            handleDelete={handleDelete}
+          ></UserAnimes>
         </>
       );
     }
   }
 }
 
-function UserAnimes({ anime_list }) {
-  console.log("anime_list in user", anime_list);
+function UserAnimes({ anime_list, handleDelete }) {
   return (
     <div>
       <h3>Selected animes</h3>
@@ -357,7 +397,14 @@ function UserAnimes({ anime_list }) {
           {anime_list.map((anime) => {
             return (
               <li key={anime.id}>
-                <Anime anime={anime}></Anime>
+                <Link to={"/animeDetails?id=" + anime.id}>
+                  <Anime anime={anime}></Anime>
+                </Link>{" "}
+                <button
+                  onClick={ () => handleDelete(anime.id, anime.title) }
+                >
+                  X
+                </button>
                 <br />
               </li>
             );
