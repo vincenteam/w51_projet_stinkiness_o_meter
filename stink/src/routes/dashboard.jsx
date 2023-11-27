@@ -111,7 +111,7 @@ async function computeStinkiness(anime) {
         return res.json();
       })
       .then((response) => {
-        let tagsBans = response.count * 0.7;
+        let tagsBans = response.count * 0.5;
         return { id: "4", points: tagsBans };
       })
   );
@@ -430,7 +430,8 @@ function StinkinessScore({ score }) {
     [40, 75, <>Neither smart fella nor fart smella</>],
     [75, 150, <>A little bit smelly</>],
     [150, 200, <>You are more of a fart smella than a smart fella</>],
-    [200, -1, <>(つ✧ω✧)つ YOU SHOULD TAKE A BATH NOW (*≧ω≦)</>],
+    [200, 800, <>(つ✧ω✧)つ YOU SHOULD TAKE A BATH NOW (*≧ω≦)</>],
+    [800, -1, <><img style={{width: "5em", height: "auto"}} src="/src/assets/infinity.png" alt="" /></>]
   ];
 
   return (
