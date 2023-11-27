@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Anime } from "./anime.jsx";
 
 import "./search.css";
+import "../general.css"
 
 export function searchAnimesLoader({ request }) {
   let url = new URL(request.url);
@@ -126,8 +127,8 @@ export function Animes({ addAnime }) {
               document.getElementById("search").value = loaded.search;
             }, [loaded.search])}
           />{" "}
-          <button type="submit" disabled={state === "loading" ? true : false}>
-            Search
+          <button className="button-92" type="submit" disabled={state === "loading" ? true : false}>
+          {state === "loading" ? "searching" : "search"}
           </button>
         </Form>
         {loaded.search !== null ? (
@@ -141,7 +142,7 @@ export function Animes({ addAnime }) {
                         <Anime anime={anime}></Anime>
                       </Link>
                       {" "}
-                      <button onClick={() => addAnime(anime)}>
+                      <button className="button-24" onClick={() => addAnime(anime)}>
                         add to list
                       </button>
                     </li>

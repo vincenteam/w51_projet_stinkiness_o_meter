@@ -384,7 +384,7 @@ function UserAnimes({ anime_list, handleDelete }) {
                 <Link to={"/animeDetails?id=" + anime.id}>
                   <Anime anime={anime}></Anime>
                 </Link>{" "}
-                <button
+                <button className="button-50"
                   onClick={ () => handleDelete(anime.id, anime.title) }
                 >
                   X
