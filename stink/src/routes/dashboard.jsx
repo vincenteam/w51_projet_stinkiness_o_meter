@@ -436,7 +436,7 @@ function StinkinessScore({ score }) {
   return (
     <div className="score_container">
       <div key="score" className="score">
-        {score}
+        {Math.floor(score)}
       </div>
       <div key="message">
         {elements.map((elem, ind) => {
